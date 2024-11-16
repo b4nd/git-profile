@@ -35,9 +35,9 @@ func (up *UseProfileService) Execute(params UseProfileServiceParams) (*domain.Pr
 	}
 
 	scmUser := domain.NewScmUser(
+		profile.Workspace().String(),
 		profile.Email().String(),
 		profile.Name().String(),
-		profile.Workspace().String(),
 	)
 
 	err = up.scmUserRepository.Save(scmUser)

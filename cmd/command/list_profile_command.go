@@ -8,14 +8,17 @@ import (
 )
 
 type ListProfileCommand struct {
-	listProfileService *application.ListProfileService
+	listProfileService    *application.ListProfileService
+	currentProfileService *application.CurrentProfileService
 }
 
 func NewListProfileCommand(
 	listProfileService *application.ListProfileService,
+	currentProfileService *application.CurrentProfileService,
 ) *ListProfileCommand {
 	return &ListProfileCommand{
 		listProfileService,
+		currentProfileService,
 	}
 }
 
@@ -33,7 +36,7 @@ git-profile list -v`,
 			profiles, err := c.listProfileService.Execute()
 
 			if err != nil {
-				fmt.Printf(errorMessages[err])
+				fmt.Println(errorMessages[err])
 				return
 			}
 
@@ -42,13 +45,28 @@ git-profile list -v`,
 				return
 			}
 
+			currentProfile, err := c.currentProfileService.Execute()
+			if err != nil {
+				fmt.Println(errorMessages[err])
+				return
+			}
+
 			for _, profile := range profiles {
+				isCurrentProfile := currentProfile != nil && currentProfile.Workspace().String() == profile.Workspace().String()
+
 				if !verboseFlag {
-					fmt.Printf("%s\n", profile.Workspace().String())
+					if isCurrentProfile {
+						fmt.Printf("*%s\n", profile.Workspace().String())
+					} else {
+						fmt.Printf("%s\n", profile.Workspace().String())
+					}
 				} else {
 					fmt.Printf("Workspace: %s\n", profile.Workspace().String())
 					fmt.Printf("Email: %s\n", profile.Email().String())
 					fmt.Printf("Name: %s\n", profile.Name().String())
+					if isCurrentProfile {
+						fmt.Printf("Current: true\n")
+					}
 					fmt.Println()
 				}
 			}

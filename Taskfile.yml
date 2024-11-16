@@ -15,6 +15,14 @@ tasks:
     cmds:
       - go clean -testcache
       - go test -v -cover ./...
+  
+  coverage:
+    desc: Run tests with coverage
+    aliases: [c]
+    cmds:
+      - go clean -testcache
+      - go test -v -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out
 
   run:
     desc: Run the binary file

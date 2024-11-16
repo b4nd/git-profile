@@ -104,7 +104,7 @@ git-profile set -w work -e email@example.com -n "Firstname Lastname""`,
 				})
 
 				if err != nil {
-					fmt.Printf(errorMessages[err], params.Workspace)
+					fmt.Println(errorMessages[err], params.Workspace)
 					return
 				}
 
@@ -119,7 +119,7 @@ git-profile set -w work -e email@example.com -n "Firstname Lastname""`,
 				})
 
 				if err != nil {
-					fmt.Printf(errorMessages[err], params.Workspace)
+					fmt.Println(errorMessages[err], params.Workspace)
 					return
 				}
 
