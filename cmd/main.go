@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -12,12 +14,10 @@ var (
 	buildDate  = "0000-00-00T00:00:00Z"
 )
 
-func main() {
-	rootComponent, err := NewRootComponent()
-	if err != nil {
-		panic(err)
-	}
+// Global Flags
+var profileFlag string
 
+func main() {
 	rootCmd := &cobra.Command{
 		Use:   "git-profile [command]",
 		Short: "Manage your git profiles",
@@ -26,11 +26,24 @@ func main() {
 		},
 	}
 
+	rootCmd.PersistentFlags().StringVarP(&profileFlag, "file", "F", "", "Set the profile file path (default is $HOME/.gitprofile)")
+	rootCmd.ParseFlags(os.Args[1:])
+
+	rootComponent, err := NewRootComponent(&RootComponentOption{
+		profile: profileFlag,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
 	rootComponent.VersionCommand.Register(rootCmd)
 	rootComponent.UpsertProfileCommand.Register(rootCmd)
 	rootComponent.GetProfileCommand.Register(rootCmd)
 	rootComponent.ListProfileCommand.Register(rootCmd)
 	rootComponent.DeleteProfileCommand.Register(rootCmd)
+	rootComponent.UseProfileCommand.Register(rootCmd)
+	rootComponent.CurrentProfileCommand.Register(rootCmd)
 
 	rootCmd.Execute()
 }

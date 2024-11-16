@@ -53,7 +53,7 @@ git-profile get -w work"`,
 			profile, err := c.getProfileService.Execute(params)
 
 			if err != nil {
-				fmt.Printf(errorMessages[err], params.Workspace)
+				fmt.Println(errorMessages[err], params.Workspace)
 				fmt.Printf("\nSuggest to create a new profile with the following command:\n")
 				fmt.Printf("  git-profile set %s\n", params.Workspace)
 				return

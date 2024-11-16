@@ -64,8 +64,7 @@ git-profile delete -w work"`,
 			})
 
 			if err != nil {
-				fmt.Printf(errorMessages[err], params.Workspace)
-				fmt.Println()
+				fmt.Println(errorMessages[err], params.Workspace)
 				return
 			}
 

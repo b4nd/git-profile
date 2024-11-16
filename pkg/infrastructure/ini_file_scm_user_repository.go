@@ -10,6 +10,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+const GIT_CONFIG_FILE = ".git/config"
 const GIT_SECTION_USER = "user"
 
 type IniFileScmUserRepository struct {
@@ -20,6 +21,8 @@ func NewIniFileScmUserRepository(path string) (*IniFileScmUserRepository, error)
 	if path == "" {
 		return nil, fmt.Errorf("path cannot be empty")
 	}
+
+	path = filepath.Join(path, GIT_CONFIG_FILE)
 
 	return &IniFileScmUserRepository{path}, nil
 }
