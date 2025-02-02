@@ -28,18 +28,23 @@ func NewVersionCommand(
 func (c *VersionCommand) Register(rootCmd *cobra.Command) {
 	cmd := &cobra.Command{
 		Use:     "version",
-		Short:   "Print the version details",
+		Short:   "Displays the current version of the application.",
 		Example: `git-profile version`,
 		Args:    cobra.NoArgs,
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Git Version: %s\n", c.GitVersion)
-			fmt.Printf("Git Commit: %s\n", c.GitCommit)
-			fmt.Printf("Build Date: %s\n", c.BuildDate)
-			fmt.Printf("Go Version: %s\n", runtime.Version())
-			fmt.Printf("Compiler: %s\n", runtime.Compiler)
-			fmt.Printf("Platform: %s\n", fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH))
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return c.Execute(cmd)
 		},
 	}
-
 	rootCmd.AddCommand(cmd)
+}
+
+func (c *VersionCommand) Execute(cmd *cobra.Command) error {
+	cmd.Printf("Git Version: %s\n", c.GitVersion)
+	cmd.Printf("Git Commit: %s\n", c.GitCommit)
+	cmd.Printf("Build Date: %s\n", c.BuildDate)
+	cmd.Printf("Go Version: %s\n", runtime.Version())
+	cmd.Printf("Compiler: %s\n", runtime.Compiler)
+	cmd.Printf("Platform: %s\n", fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH))
+
+	return nil
 }

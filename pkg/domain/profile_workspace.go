@@ -16,7 +16,7 @@ var ErrInvalidWorkspaceCharacters = errors.New("invalid workspace characters")
 
 const regexWorkspaceCharacters = `^[a-zA-Z0-9_\.-]+$` // only letters, numbers and underscore
 
-func NewWorkspace(value string) (ProfileWorkspace, error) {
+func NewProfileWorkspace(value string) (ProfileWorkspace, error) {
 	workspace := strings.TrimSpace(value)
 	workspace = strings.ToLower(workspace)
 

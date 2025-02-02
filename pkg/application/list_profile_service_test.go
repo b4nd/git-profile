@@ -1,8 +1,8 @@
-package application
+package application_test
 
 import (
+	"backend/git-profile/pkg/application"
 	"backend/git-profile/pkg/domain"
-	"backend/git-profile/pkg/infrastructure"
 	"testing"
 
 	"github.com/jaswdr/faker"
@@ -31,13 +31,13 @@ func generateProfiles(t *testing.T, length uint) []*domain.Profile {
 
 func TestListProfileService_Execute(t *testing.T) {
 	t.Run("should return all profiles", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+		mockProfileRepository := &MockProfileRepository{}
 
 		profiles := generateProfiles(t, 10)
 
 		mockProfileRepository.On("List").Return(profiles, nil)
 
-		listProfileService := NewListProfileService(mockProfileRepository)
+		listProfileService := application.NewListProfileService(mockProfileRepository)
 		listProfiles, err := listProfileService.Execute()
 
 		assert.NoError(t, err)
@@ -53,11 +53,11 @@ func TestListProfileService_Execute(t *testing.T) {
 	})
 
 	t.Run("should return error when profile repository list fails", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+		mockProfileRepository := &MockProfileRepository{}
 
 		mockProfileRepository.On("List").Return([]*domain.Profile{}, assert.AnError)
 
-		listProfileService := NewListProfileService(mockProfileRepository)
+		listProfileService := application.NewListProfileService(mockProfileRepository)
 		listProfiles, err := listProfileService.Execute()
 
 		assert.Error(t, err)

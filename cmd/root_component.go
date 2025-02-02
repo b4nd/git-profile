@@ -6,11 +6,17 @@ import (
 	"backend/git-profile/pkg/domain"
 	"backend/git-profile/pkg/infrastructure"
 	"os"
+	"path"
+)
+
+const (
+	PROFILE_NAME string = ".gitprofile"
 )
 
 type RootComponent struct {
-	ProfileRepository domain.ProfileRepository
-	ScmUserRepository domain.ScmUserRepository
+	ProfileRepository   domain.ProfileRepository
+	ScmUserRepository   domain.ScmUserRepository
+	ScmCommitRepository domain.ScmCommitRepository
 
 	CreateProfileService  *application.CreateProfileService
 	UpdateProfileService  *application.UpdateProfileService
@@ -19,6 +25,7 @@ type RootComponent struct {
 	DeleteProfileService  *application.DeleteProfileService
 	UseProfileSercice     *application.UseProfileService
 	CurrentProfileService *application.CurrentProfileService
+	amendProfileService   *application.AmendProfileService
 
 	VersionCommand        *command.VersionCommand
 	UpsertProfileCommand  *command.SetProfileCommand
@@ -27,24 +34,23 @@ type RootComponent struct {
 	DeleteProfileCommand  *command.DeleteProfileCommand
 	UseProfileCommand     *command.UseProfileCommand
 	CurrentProfileCommand *command.CurrentProfileCommand
+	AmendProfileCommand   *command.AmendProfileCommitCommand
 }
 
 type RootComponentOption struct {
+	// profile flag is used to set the profile file path (default is $HOME/.gitprofile)
 	profile string
+	// local flag is used to set the local profile (default is .gitprofile in the current directory)
+	local bool
+	// pwd flag is used to set the current working directory (default is the current directory)
+	pwd string
 }
 
-func NewRootComponent(
-	option *RootComponentOption,
-) (*RootComponent, error) {
+func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 	// Set default profile file path to $HOME/.gitprofile if not provided by user
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
-	}
-
-	defaultProfile := userHomeDir + "/.gitprofile"
-	if option != nil && option.profile != "" {
-		defaultProfile = option.profile
 	}
 
 	workingDir, err := os.Getwd()
@@ -52,13 +58,43 @@ func NewRootComponent(
 		return nil, err
 	}
 
+	if option != nil && option.pwd != "" {
+		workingDir = option.pwd
+	}
+
+	defaultProfile := path.Join(userHomeDir, PROFILE_NAME)
+	localProfile := path.Join(workingDir, PROFILE_NAME)
+	othersProfile := []string{}
+
+	if option != nil && option.profile != "" {
+		defaultProfile = option.profile
+
+		// Check if the profile is a directory or a file
+		if info, err := os.Stat(option.profile); err == nil && info.IsDir() {
+			defaultProfile = path.Join(option.profile, PROFILE_NAME)
+		}
+	}
+
+	if option != nil && option.local {
+		defaultProfile = localProfile
+	}
+
+	if !option.local {
+		othersProfile = append(othersProfile, localProfile)
+	}
+
 	// Repositories
-	profileRepository, err := infrastructure.NewIniFileProfileRepository(defaultProfile)
+	profileRepository, err := infrastructure.NewIniFileProfileRepository(defaultProfile, othersProfile)
 	if err != nil {
 		return nil, err
 	}
 
-	scmUserRepository, err := infrastructure.NewIniFileScmUserRepository(workingDir)
+	scmUserRepository, err := infrastructure.NewGitUserRepository(workingDir)
+	if err != nil {
+		return nil, err
+	}
+
+	scmCommitRepository, err := infrastructure.NewGitCommitRepository(workingDir)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +107,7 @@ func NewRootComponent(
 	deleteProfileService := application.NewDeleteProfileService(profileRepository)
 	useProfileService := application.NewUseProfileService(profileRepository, scmUserRepository)
 	currentProfileService := application.NewCurrentProfileService(profileRepository, scmUserRepository)
+	amendProfileService := application.NewAmendProfileService(profileRepository, scmCommitRepository)
 
 	// Command
 	versionCommand := command.NewVersionCommand(gitVersion, gitCommit, buildDate)
@@ -80,11 +117,13 @@ func NewRootComponent(
 	deleteProfileCommand := command.NewDeleteProfileCommand(getProfileService, deleteProfileService)
 	useProfileCommand := command.NewUseProfileCommand(useProfileService, getProfileService, listProfilesService)
 	currentProfileCommand := command.NewCurrentProfileCommand(currentProfileService)
+	amendProfileCommitCommand := command.NewAmendProfileCommitCommnad(currentProfileService, amendProfileService)
 
 	return &RootComponent{
 		// Repositories
-		ProfileRepository: profileRepository,
-		ScmUserRepository: scmUserRepository,
+		ProfileRepository:   profileRepository,
+		ScmUserRepository:   scmUserRepository,
+		ScmCommitRepository: scmCommitRepository,
 		// Services
 		CreateProfileService:  createProfileService,
 		GetProfileService:     getProfileService,
@@ -92,6 +131,7 @@ func NewRootComponent(
 		DeleteProfileService:  deleteProfileService,
 		UseProfileSercice:     useProfileService,
 		CurrentProfileService: currentProfileService,
+		amendProfileService:   amendProfileService,
 		// Command
 		VersionCommand:        versionCommand,
 		UpsertProfileCommand:  createProfileCommand,
@@ -100,5 +140,6 @@ func NewRootComponent(
 		DeleteProfileCommand:  deleteProfileCommand,
 		UseProfileCommand:     useProfileCommand,
 		CurrentProfileCommand: currentProfileCommand,
+		AmendProfileCommand:   amendProfileCommitCommand,
 	}, nil
 }

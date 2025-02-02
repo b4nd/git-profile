@@ -17,7 +17,7 @@ func NewGetProfileService(profileRepository domain.ProfileRepository) *GetProfil
 }
 
 func (cp *GetProfileService) Execute(params GetProfileServiceParams) (*domain.Profile, error) {
-	workspace, err := domain.NewWorkspace(params.Workspace)
+	workspace, err := domain.NewProfileWorkspace(params.Workspace)
 	if err != nil {
 		return nil, err
 	}

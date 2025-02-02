@@ -24,7 +24,7 @@ func NewUseProfileService(
 }
 
 func (up *UseProfileService) Execute(params UseProfileServiceParams) (*domain.Profile, error) {
-	workspace, err := domain.NewWorkspace(params.Workspace)
+	workspace, err := domain.NewProfileWorkspace(params.Workspace)
 	if err != nil {
 		return nil, err
 	}

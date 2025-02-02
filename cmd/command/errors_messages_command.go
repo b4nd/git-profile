@@ -6,10 +6,10 @@ import (
 )
 
 var errorMessages = map[error]string{
-	application.ErrProfileAlreadyExists:  "Profile \"%s\" already exists.",
-	application.ErrProfileNotExists:      "Profile \"%s\" does not exist.",
-	domain.ErrInvalidEmail:               "The email is invalid.",
-	domain.ErrInvalidName:                "The name is invalid.",
-	domain.ErrInvalidWorkspace:           "The workspace is invalid.",
-	domain.ErrInvalidWorkspaceCharacters: "The workspace must contain only alphanumeric characters.",
+	application.ErrProfileAlreadyExists:  "Profile \"%s\" already exists.\n",
+	application.ErrProfileNotExists:      "Profile \"%s\" does not exist.\n",
+	domain.ErrInvalidEmail:               "The email is invalid.\n",
+	domain.ErrInvalidName:                "The name is invalid.\n",
+	domain.ErrInvalidWorkspace:           "Profile \"%s\" does not exist.\n",
+	domain.ErrInvalidWorkspaceCharacters: "The workspace must contain only alphanumeric characters.\n",
 }
