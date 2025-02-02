@@ -10,11 +10,10 @@ type ProfileName struct {
 	value string
 }
 
-var ErrInvalidName = errors.New("invalid email")
+var ErrInvalidName = errors.New("invalid name")
 
-func NewName(value string) (ProfileName, error) {
+func NewProfileName(value string) (ProfileName, error) {
 	name := strings.TrimSpace(value)
-	// name = strings.ToTitle(name)
 
 	if utf8.RuneCountInString(name) == 0 {
 		return ProfileName{}, ErrInvalidName

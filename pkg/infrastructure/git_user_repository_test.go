@@ -1,7 +1,8 @@
-package infrastructure
+package infrastructure_test
 
 import (
 	"backend/git-profile/pkg/domain"
+	"backend/git-profile/pkg/infrastructure"
 	"os"
 	"os/exec"
 	"testing"
@@ -23,13 +24,13 @@ func initializateGitRepository(t *testing.T) string {
 	return path
 }
 
-func TestIniFileScmUserRepository(t *testing.T) {
+func TestGitUserRepository(t *testing.T) {
 	faker := faker.New()
 
 	t.Run("should return an error when the profile does not exist", func(t *testing.T) {
 		path := initializateGitRepository(t)
 
-		repository, err := NewIniFileScmUserRepository(path)
+		repository, err := infrastructure.NewGitUserRepository(path)
 		assert.NoError(t, err)
 
 		user, err := repository.Get()
@@ -40,7 +41,7 @@ func TestIniFileScmUserRepository(t *testing.T) {
 	t.Run("should return profile when set new profile", func(t *testing.T) {
 		path := initializateGitRepository(t)
 
-		repository, err := NewIniFileScmUserRepository(path)
+		repository, err := infrastructure.NewGitUserRepository(path)
 		assert.NoError(t, err)
 
 		user := domain.NewScmUser(
@@ -60,7 +61,7 @@ func TestIniFileScmUserRepository(t *testing.T) {
 	t.Run("should return profile when set new profile and update", func(t *testing.T) {
 		path := initializateGitRepository(t)
 
-		repository, err := NewIniFileScmUserRepository(path)
+		repository, err := infrastructure.NewGitUserRepository(path)
 		assert.NoError(t, err)
 
 		user1 := domain.NewScmUser(
@@ -95,7 +96,7 @@ func TestIniFileScmUserRepository(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, path)
 
-		repository, err := NewIniFileScmUserRepository(path)
+		repository, err := infrastructure.NewGitUserRepository(path)
 		assert.NoError(t, err)
 		assert.NotNil(t, repository)
 
@@ -109,7 +110,7 @@ func TestIniFileScmUserRepository(t *testing.T) {
 		err := os.Remove(path + "/.git/config")
 		assert.NoError(t, err)
 
-		repository, err := NewIniFileScmUserRepository(path)
+		repository, err := infrastructure.NewGitUserRepository(path)
 		assert.NoError(t, err)
 		assert.NotNil(t, repository)
 
@@ -130,7 +131,7 @@ func TestIniFileScmUserRepository(t *testing.T) {
 
 		assert.NoError(t, err)
 
-		repository, err := NewIniFileScmUserRepository(path)
+		repository, err := infrastructure.NewGitUserRepository(path)
 		assert.NoError(t, err)
 		assert.NotNil(t, repository)
 

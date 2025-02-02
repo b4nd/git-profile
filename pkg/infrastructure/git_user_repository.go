@@ -13,21 +13,21 @@ import (
 const GIT_CONFIG_FILE = ".git/config"
 const GIT_SECTION_USER = "user"
 
-type IniFileScmUserRepository struct {
+type GitUserRepository struct {
 	path string
 }
 
-func NewIniFileScmUserRepository(path string) (*IniFileScmUserRepository, error) {
+func NewGitUserRepository(path string) (*GitUserRepository, error) {
 	if path == "" {
 		return nil, fmt.Errorf("path cannot be empty")
 	}
 
 	path = filepath.Join(path, GIT_CONFIG_FILE)
 
-	return &IniFileScmUserRepository{path}, nil
+	return &GitUserRepository{path}, nil
 }
 
-func (i *IniFileScmUserRepository) Get() (*domain.ScmUser, error) {
+func (i *GitUserRepository) Get() (*domain.ScmUser, error) {
 	if _, err := os.Stat(i.path); errors.Is(err, os.ErrNotExist) {
 		return nil, domain.ErrScmUserNotFound
 	}
@@ -51,7 +51,7 @@ func (i *IniFileScmUserRepository) Get() (*domain.ScmUser, error) {
 	return user, nil
 }
 
-func (i *IniFileScmUserRepository) Save(user *domain.ScmUser) error {
+func (i *GitUserRepository) Save(user *domain.ScmUser) error {
 	if _, err := os.Stat(i.path); errors.Is(err, os.ErrNotExist) {
 		if err := os.MkdirAll(filepath.Dir(i.path), os.ModePerm); err != nil {
 			return err

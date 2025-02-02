@@ -13,7 +13,7 @@ type ProfileEmail struct {
 
 var ErrInvalidEmail = errors.New("invalid email")
 
-func NewEmail(value string) (ProfileEmail, error) {
+func NewProfileEmail(value string) (ProfileEmail, error) {
 	email := strings.TrimSpace(value)
 	email = strings.ToLower(email)
 

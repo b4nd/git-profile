@@ -17,7 +17,7 @@ func NewDeleteProfileService(profileRepository domain.ProfileRepository) *Delete
 }
 
 func (cp *DeleteProfileService) Execute(params DeleteProfileServiceParams) error {
-	workspace, err := domain.NewWorkspace(params.Workspace)
+	workspace, err := domain.NewProfileWorkspace(params.Workspace)
 	if err != nil {
 		return err
 	}

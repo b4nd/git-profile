@@ -3,7 +3,6 @@ package command
 import (
 	"backend/git-profile/pkg/application"
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 
@@ -35,104 +34,129 @@ type SetProfileCommandParams struct {
 }
 
 func (c *SetProfileCommand) Register(rootCmd *cobra.Command) {
-	reader := bufio.NewReader(os.Stdin)
-	var workspaceFlag string
-	var emailFlag string
-	var nameFlag string
+	var workspace string
+	var email string
+	var name string
+	var force bool
 
 	cmd := &cobra.Command{
-		Use:   "set [-w workspace] [-e email] [-n name]",
-		Short: "Create or update a profile",
-		Long: `Create or update a profile with the given workspace, email and name.
+		Use:   "set [-w workspace] [-e email] [-n name] [--force]",
+		Short: "Sets or updates a profile configuration.",
+		Long: `Sets or update a profile with the given workspace, email and name.
 If no arguments are provided, the command will prompt for the missing values.
 `,
 		Example: `git-profile set
 git-profile set work
 git-profile set --workspace work --email email@example.com --name "Firstname Lastname"
-git-profile set -w work -e email@example.com -n "Firstname Lastname""`,
+git-profile set -w work -e email@example.com -n "Firstname Lastname"`,
 		Args: cobra.MaximumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			if workspaceFlag == "" && len(args) > 0 {
-				workspaceFlag = args[0]
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if workspace == "" && len(args) > 0 {
+				workspace = args[0]
 			}
 
-			params := SetProfileCommandParams{
-				Workspace: workspaceFlag,
-				Email:     emailFlag,
-				Name:      nameFlag,
-			}
-
-			if workspaceFlag == "" {
-				fmt.Print("Enter workspace: ")
-				input, _ := reader.ReadString('\n')
-				params.Workspace = strings.TrimSpace(input)
-			}
-
-			updateProfile := false
-
-			if profile, err := c.getProfileService.Execute(application.GetProfileServiceParams{Workspace: params.Workspace}); err == nil {
-				fmt.Printf("Profile \"%s\" already exists, do you want to update it? (y/N): ", profile.Name())
-				var answer string
-				fmt.Scanln(&answer)
-
-				if answer != "y" {
-					return
-				}
-
-				updateProfile = true
-				params.Email = profile.Email().String()
-				params.Name = profile.Name().String()
-			}
-
-			if emailFlag == "" {
-				fmt.Print("Enter email [" + params.Email + "]: ")
-				input, _ := reader.ReadString('\n')
-				params.Email = strings.TrimSpace(input)
-			}
-
-			if nameFlag == "" {
-				fmt.Print("Enter name [" + params.Name + "]: ")
-				input, _ := reader.ReadString('\n')
-				params.Name = strings.TrimSpace(input)
-			}
-
-			if updateProfile {
-				profile, err := c.updateProfileService.Execute(application.UpdateProfileServiceParams{
-					Workspace: params.Workspace,
-					Email:     params.Email,
-					Name:      params.Name,
-				})
-
-				if err != nil {
-					fmt.Println(errorMessages[err], params.Workspace)
-					return
-				}
-
-				fmt.Printf("Profile \"%s\" updated successfully", profile.Workspace().String())
-				fmt.Printf("\nSuggest to use the updated profile with the following command:\n")
-				fmt.Printf("  git-profile use %s\n", params.Workspace)
-			} else {
-				profile, err := c.createProfileService.Execute(application.CreateProfileServiceParams{
-					Workspace: params.Workspace,
-					Email:     params.Email,
-					Name:      params.Name,
-				})
-
-				if err != nil {
-					fmt.Println(errorMessages[err], params.Workspace)
-					return
-				}
-
-				fmt.Printf("Profile \"%s\" created successfully", profile.Workspace().String())
-				fmt.Printf("\nSuggest to use the new profile with the following command:\n")
-				fmt.Printf("  git-profile use %s\n", params.Workspace)
-			}
+			return c.Execute(cmd, workspace, email, name, force)
 		},
 	}
 
-	cmd.Flags().StringVarP(&workspaceFlag, "workspace", "w", "", "The workspace of the profile")
-	cmd.Flags().StringVarP(&emailFlag, "email", "e", "", "The email of the profile")
-	cmd.Flags().StringVarP(&nameFlag, "name", "n", "", "The name of the profile")
+	cmd.Flags().StringVarP(&workspace, "workspace", "w", "", "The workspace of the profile")
+	cmd.Flags().StringVarP(&email, "email", "e", "", "The email of the profile")
+	cmd.Flags().StringVarP(&name, "name", "n", "", "The name of the profile")
+	cmd.Flags().BoolVar(&force, "force", false, "Force the update of an existing profile")
 
 	rootCmd.AddCommand(cmd)
+}
+
+func (c *SetProfileCommand) Execute(cmd *cobra.Command, workspace string, email string, name string, force bool) error {
+	reader := bufio.NewReader(os.Stdin)
+
+	params := SetProfileCommandParams{
+		Workspace: workspace,
+		Email:     email,
+		Name:      name,
+	}
+
+	if workspace == "" {
+		cmd.Print("Enter workspace: ")
+		input, _ := reader.ReadString('\n')
+		params.Workspace = strings.TrimSpace(input)
+	}
+
+	updateProfile := false
+
+	if profile, err := c.getProfileService.Execute(application.GetProfileServiceParams{Workspace: params.Workspace}); err == nil {
+		if !force {
+			cmd.Printf("Profile \"%s\" already exists, do you want to update it? (y/N): ", profile.Workspace())
+
+			var answer string
+			answer, _ = reader.ReadString('\n')
+			answer = strings.TrimSpace(answer)
+
+			if answer != "y" {
+				return nil
+			}
+		}
+
+		updateProfile = true
+
+		if email == "" {
+			params.Email = profile.Email().String()
+		}
+
+		if name == "" {
+			params.Name = profile.Name().String()
+		}
+	}
+
+	if email == "" {
+		cmd.Print("Enter email [" + params.Email + "]: ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+		if input != "" {
+			params.Email = input
+		}
+	}
+
+	if name == "" {
+		cmd.Print("Enter name [" + params.Name + "]: ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+		if input != "" {
+			params.Name = input
+		}
+	}
+
+	if updateProfile {
+		profile, err := c.updateProfileService.Execute(application.UpdateProfileServiceParams{
+			Workspace: params.Workspace,
+			Email:     params.Email,
+			Name:      params.Name,
+		})
+
+		if err != nil {
+			cmd.Printf(errorMessages[err], params.Workspace)
+			return nil
+		}
+
+		cmd.Printf("Profile \"%s\" updated successfully", profile.Workspace().String())
+		cmd.Printf("\nSuggest to use the updated profile with the following command:\n")
+		cmd.Printf("  git-profile use %s\n", params.Workspace)
+	} else {
+		profile, err := c.createProfileService.Execute(application.CreateProfileServiceParams{
+			Workspace: params.Workspace,
+			Email:     params.Email,
+			Name:      params.Name,
+		})
+
+		if err != nil {
+			cmd.Printf(errorMessages[err], params.Workspace)
+			return nil
+		}
+
+		cmd.Printf("Profile \"%s\" created successfully", profile.Workspace().String())
+		cmd.Printf("\nSuggest to use the new profile with the following command:\n")
+		cmd.Printf("  git-profile use %s\n", params.Workspace)
+	}
+
+	return nil
 }

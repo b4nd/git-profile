@@ -1,4 +1,4 @@
-package infrastructure
+package application_test
 
 import (
 	"backend/git-profile/pkg/domain"

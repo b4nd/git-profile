@@ -14,8 +14,16 @@ var (
 	buildDate  = "0000-00-00T00:00:00Z"
 )
 
+// Environment Variables
+const (
+	profileEnvName = "GIT_PROFILE_PATH"
+)
+
 // Global Flags
-var profileFlag string
+var (
+	profileFlag string = ""
+	localFlag   bool   = false
+)
 
 func main() {
 	rootCmd := &cobra.Command{
@@ -26,17 +34,21 @@ func main() {
 		},
 	}
 
-	rootCmd.PersistentFlags().StringVarP(&profileFlag, "file", "F", "", "Set the profile file path (default is $HOME/.gitprofile)")
+	// Global Flags
+	rootCmd.PersistentFlags().BoolVarP(&localFlag, "local", "l", false, "Set the local profile (default is .gitprofile in the current directory)")
+	rootCmd.PersistentFlags().StringVarP(&profileFlag, "file", "f", os.Getenv(profileEnvName), "Set the profile file path (default is $HOME/.gitprofile)")
 	rootCmd.ParseFlags(os.Args[1:])
 
 	rootComponent, err := NewRootComponent(&RootComponentOption{
 		profile: profileFlag,
+		local:   localFlag,
 	})
 
 	if err != nil {
 		panic(err)
 	}
 
+	// Register all commands to the root command
 	rootComponent.VersionCommand.Register(rootCmd)
 	rootComponent.UpsertProfileCommand.Register(rootCmd)
 	rootComponent.GetProfileCommand.Register(rootCmd)
@@ -44,6 +56,7 @@ func main() {
 	rootComponent.DeleteProfileCommand.Register(rootCmd)
 	rootComponent.UseProfileCommand.Register(rootCmd)
 	rootComponent.CurrentProfileCommand.Register(rootCmd)
+	rootComponent.AmendProfileCommand.Register(rootCmd)
 
 	rootCmd.Execute()
 }

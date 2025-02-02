@@ -1,4 +1,4 @@
-package infrastructure
+package application_test
 
 import (
 	"backend/git-profile/pkg/domain"
@@ -6,16 +6,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockScmUserRepository struct {
+type MockUserRepository struct {
 	mock.Mock
 }
 
-func (m *MockScmUserRepository) Get() (*domain.ScmUser, error) {
+func (m *MockUserRepository) Get() (*domain.ScmUser, error) {
 	args := m.Called()
 	return args.Get(0).(*domain.ScmUser), args.Error(1)
 }
 
-func (m *MockScmUserRepository) Save(user *domain.ScmUser) error {
+func (m *MockUserRepository) Save(user *domain.ScmUser) error {
 	args := m.Called(user)
 	return args.Error(0)
 }

@@ -1,8 +1,8 @@
-package application
+package application_test
 
 import (
+	"backend/git-profile/pkg/application"
 	"backend/git-profile/pkg/domain"
-	"backend/git-profile/pkg/infrastructure"
 	"testing"
 
 	"github.com/jaswdr/faker"
@@ -12,7 +12,7 @@ import (
 func TestCreateProfileService_Execute(t *testing.T) {
 	faker := faker.New()
 
-	params := CreateProfileServiceParams{
+	params := application.CreateProfileServiceParams{
 		Workspace: faker.Internet().User(),
 		Email:     faker.Internet().Email(),
 		Name:      faker.Person().Name(),
@@ -26,13 +26,13 @@ func TestCreateProfileService_Execute(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	t.Run("Should create it when the profile does not exist", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+	t.Run("should create it when the profile does not exist", func(t *testing.T) {
+		mockProfileRepository := &MockProfileRepository{}
 
 		mockProfileRepository.On("Get", profile.Workspace()).Return(&domain.Profile{}, assert.AnError)
 		mockProfileRepository.On("Save", profile).Return(nil)
 
-		createProfileService := NewCreateProfileService(mockProfileRepository)
+		createProfileService := application.NewCreateProfileService(mockProfileRepository)
 		newProfile, err := createProfileService.Execute(params)
 
 		assert.NoError(t, err)
@@ -42,25 +42,25 @@ func TestCreateProfileService_Execute(t *testing.T) {
 	})
 
 	t.Run("should return error when profile already exists", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+		mockProfileRepository := &MockProfileRepository{}
 		mockProfileRepository.On("Get", profile.Workspace()).Return(profile, nil)
 
-		createProfileService := NewCreateProfileService(mockProfileRepository)
+		createProfileService := application.NewCreateProfileService(mockProfileRepository)
 		newProfile, err := createProfileService.Execute(params)
 
 		assert.Error(t, err)
 		assert.Nil(t, newProfile)
-		assert.Equal(t, ErrProfileAlreadyExists, err)
+		assert.Equal(t, application.ErrProfileAlreadyExists, err)
 
 		mockProfileRepository.AssertExpectations(t)
 	})
 
 	t.Run("should return error when profile repository save fails", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+		mockProfileRepository := &MockProfileRepository{}
 		mockProfileRepository.On("Get", profile.Workspace()).Return(&domain.Profile{}, assert.AnError)
 		mockProfileRepository.On("Save", profile).Return(assert.AnError)
 
-		createProfileService := NewCreateProfileService(mockProfileRepository)
+		createProfileService := application.NewCreateProfileService(mockProfileRepository)
 		newProfile, err := createProfileService.Execute(params)
 
 		assert.Error(t, err)

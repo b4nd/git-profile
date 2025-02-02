@@ -29,7 +29,7 @@ func (cp *CurrentProfileService) Execute() (*domain.Profile, error) {
 		return nil, ErrProfileNotConfigured
 	}
 
-	workspace, err := domain.NewWorkspace(scmUser.Workespace)
+	workspace, err := domain.NewProfileWorkspace(scmUser.Workespace)
 	if err != nil {
 		return nil, err
 	}

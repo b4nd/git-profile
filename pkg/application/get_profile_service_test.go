@@ -1,8 +1,8 @@
-package application
+package application_test
 
 import (
+	"backend/git-profile/pkg/application"
 	"backend/git-profile/pkg/domain"
-	"backend/git-profile/pkg/infrastructure"
 	"testing"
 
 	"github.com/jaswdr/faker"
@@ -12,7 +12,7 @@ import (
 func TestGetProfile_Execute(t *testing.T) {
 	faker := faker.New()
 
-	params := GetProfileServiceParams{
+	params := application.GetProfileServiceParams{
 		Workspace: faker.Internet().User(),
 	}
 
@@ -25,10 +25,10 @@ func TestGetProfile_Execute(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("should return the profile when it exists", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+		mockProfileRepository := &MockProfileRepository{}
 		mockProfileRepository.On("Get", profile.Workspace()).Return(profile, nil)
 
-		getProfileService := NewGetProfileService(mockProfileRepository)
+		getProfileService := application.NewGetProfileService(mockProfileRepository)
 		newProfile, err := getProfileService.Execute(params)
 
 		assert.NoError(t, err)
@@ -39,11 +39,11 @@ func TestGetProfile_Execute(t *testing.T) {
 	})
 
 	t.Run("should return error when profile does not exist", func(t *testing.T) {
-		mockProfileRepository := &infrastructure.MockProfileRepository{}
+		mockProfileRepository := &MockProfileRepository{}
 
 		mockProfileRepository.On("Get", profile.Workspace()).Return(&domain.Profile{}, assert.AnError)
 
-		getProfileService := NewGetProfileService(mockProfileRepository)
+		getProfileService := application.NewGetProfileService(mockProfileRepository)
 		_, err := getProfileService.Execute(params)
 
 		assert.Error(t, err)

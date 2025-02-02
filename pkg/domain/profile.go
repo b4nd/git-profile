@@ -7,17 +7,17 @@ type Profile struct {
 }
 
 func NewProfile(workspace string, email string, name string) (*Profile, error) {
-	w, err := NewWorkspace(workspace)
+	w, err := NewProfileWorkspace(workspace)
 	if err != nil {
 		return nil, err
 	}
 
-	e, err := NewEmail(email)
+	e, err := NewProfileEmail(email)
 	if err != nil {
 		return nil, err
 	}
 
-	n, err := NewName(name)
+	n, err := NewProfileName(name)
 	if err != nil {
 		return nil, err
 	}
