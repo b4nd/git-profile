@@ -79,7 +79,7 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 		defaultProfile = localProfile
 	}
 
-	if !option.local {
+	if !option.local && defaultProfile != localProfile {
 		othersProfile = append(othersProfile, localProfile)
 	}
 
@@ -110,7 +110,7 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 	amendProfileService := application.NewAmendProfileService(profileRepository, scmCommitRepository)
 
 	// Command
-	versionCommand := command.NewVersionCommand(gitVersion, gitCommit, buildDate)
+	versionCommand := command.NewVersionCommand(gitVersion, gitCommit, buildDate, defaultProfile)
 	createProfileCommand := command.NewSetProfileCommand(createProfileService, updateProfileService, getProfileService)
 	getProfileCommand := command.NewGetProfileCommand(getProfileService)
 	listProfileCommand := command.NewListProfileCommand(listProfilesService, currentProfileService)

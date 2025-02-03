@@ -8,20 +8,23 @@ import (
 )
 
 type VersionCommand struct {
-	GitVersion string
-	GitCommit  string
-	BuildDate  string
+	GitVersion  string
+	GitCommit   string
+	BuildDate   string
+	ProfilePath string
 }
 
 func NewVersionCommand(
 	gitVersion string,
 	gitCommit string,
 	buildDate string,
+	profilePath string,
 ) *VersionCommand {
 	return &VersionCommand{
-		GitVersion: gitVersion,
-		GitCommit:  gitCommit,
-		BuildDate:  buildDate,
+		GitVersion:  gitVersion,
+		GitCommit:   gitCommit,
+		BuildDate:   buildDate,
+		ProfilePath: profilePath,
 	}
 }
 
@@ -45,6 +48,7 @@ func (c *VersionCommand) Execute(cmd *cobra.Command) error {
 	cmd.Printf("Go Version: %s\n", runtime.Version())
 	cmd.Printf("Compiler: %s\n", runtime.Compiler)
 	cmd.Printf("Platform: %s\n", fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH))
+	cmd.Printf("Profile Path: %s\n", c.ProfilePath)
 
 	return nil
 }
