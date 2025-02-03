@@ -6,6 +6,8 @@
 ## Overview
 Git Profile is a command-line application developed in Go, designed to manage multiple Git profiles efficiently. It provides a suite of commands to create, update, delete, and switch between different user profiles, making it easier to handle various identities across different Git repositories. This tool is particularly useful for developers who work on multiple projects with different user credentials.
 
+![git-profile](https://raw.githubusercontent.com/b4nd/git-profile/main/doc/git-profile.gif)
+
 ## Commands Documentation
 
 | Command | Description |
