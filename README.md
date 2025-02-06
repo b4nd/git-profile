@@ -2,6 +2,15 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Go](https://github.com/b4nd/git-profile/actions/workflows/build.yml/badge.svg)](https://github.com/b4nd/git-profile/actions/workflows/build.yml)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=bugs)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
 
 ## Overview
 
@@ -34,7 +43,7 @@ Imagine a developer working on both open-source and corporate projects. They nee
 ### Linux
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.0/git-profile-v0.1.0-linux-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.2/git-profile-v0.1.2-linux-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -42,7 +51,7 @@ mv git-profile /usr/local/bin/
 ### macOS
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.0/git-profile-v0.1.0-darwin-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.2/git-profile-v0.1.2-darwin-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -51,7 +60,7 @@ mv git-profile /usr/local/bin/
 
 1. Download the latest Windows executable from the [releases page](https://github.com/b4nd/git-profile/releases).
 2. Extract the archive.
-3. Move the `git-profile-v0.1.0-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
+3. Move the `git-profile-v0.1.2-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
 4. Optionally, add the directory to the system `PATH` environment variable for easier access.
 
 ```powershell
@@ -71,7 +80,7 @@ git profile [command] [flags]
 - **Create a new profile for a personal project:**
 
   ```bash
-  git-profile set --workspace personal --name "Your Name" --email "name@example.com"
+  git profile set --workspace personal --name "Your Name" --email "name@example.com"
   ```
 
   This command sets up a new profile named `personal` with the given credentials.
@@ -79,7 +88,7 @@ git profile [command] [flags]
 - **List all existing profiles:**
 
   ```bash
-  gitprofile list
+  git profile list
   ```
 
   Displays all available profiles currently stored.
@@ -87,7 +96,7 @@ git profile [command] [flags]
 - **Use a specific profile:**
 
   ```bash
-  git-profile use personal
+  git profile use personal
   ```
 
   Switches to the `personal` profile, applying its Git credentials.
@@ -95,7 +104,7 @@ git profile [command] [flags]
 - **Check the currently active profile:**
 
   ```bash
-  git-profile current
+  git profile current
   ```
 
   Shows which profile is currently in use.
@@ -103,7 +112,7 @@ git profile [command] [flags]
 - **Amend the last commit with the active profile's details:**
 
   ```bash
-  git-profile amend
+  git profile amend
   ```
 
   Updates the latest commit with the email and name of the currently active profile.
@@ -111,7 +120,7 @@ git profile [command] [flags]
 - **Remove a profile:**
 
   ```bash
-  git-profile delete personal
+  git profile delete personal
   ```
 
   Deletes the `personal` profile from the system.
@@ -120,7 +129,7 @@ git profile [command] [flags]
 
 | Variable           | Description                                                                               |
 | ------------------ | ----------------------------------------------------------------------------------------- |
-| `GIT_PROFILE_PATH` | The path to the directory where the profiles are stored. Default is `$HOME/.git-profile`. |
+| `GIT_PROFILE_PATH` | The path to the directory where the profiles are stored. Default is `$HOME/.gitprofile`. |
 
 ### Configuring GIT\_PROFILE\_PATH in `.zshrc` or `.bashrc`
 
@@ -129,6 +138,7 @@ If you want to specify a custom location for the Git Profile configuration, you 
 For Windows Subsystem for Linux (WSL), you can add the following lines to your `~/.zshrc` or `~/.bashrc`:
 
 ```bash
+# Example of a shared Git profile on Windows through WSL
 export GIT_PROFILE_PATH="/mnt/c/Users/<USER>/.gitprofile"
 ```
 
@@ -154,8 +164,8 @@ This will automatically set up all dependencies and configurations needed for de
 
 ## Requirements
 
-- [Go](https://golang.org/)
-- [Taskfile](https://taskfile.dev/)
+- [Go](https://golang.org/) 1.23.6+
+- [Taskfile](https://taskfile.dev/) 1.23.6+
 - [Git](https://git-scm.com/)
 
 ## Build
@@ -247,3 +257,6 @@ Below are examples of how to use each command, along with explanations of their 
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+## Acknowledgements
+
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
