@@ -9,20 +9,34 @@ vars:
     sh: date -u +'%Y-%m-%dT%H:%M:%SZ'
 
 tasks:
+  prepare:
+    desc: Prepare the environment
+    cmds:
+      - curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sudo sh -s -- -b /usr/local/bin v2.22.0
+      - go mod download
+
   test:
     desc: Run tests
     aliases: [t]
     cmds:
       - go clean -testcache
-      - go test -v -cover ./...
+      - go test -v ./...
   
   coverage:
     desc: Run tests with coverage
     aliases: [c]
     cmds:
       - go clean -testcache
-      - go test -v -coverprofile=coverage.out ./...
-      - go tool cover -html=coverage.out
+      - go test -v -cover ./... -coverprofile=coverage.txt
+      - go tool cover --html=coverage.txt -o coverage.html
+      - go tool cover --func=coverage.txt
+
+  lint:
+    desc: Run linters
+    aliases: [l]
+    cmds:
+      - golangci-lint run ./...
+      - gosec ./...
 
   run:
     desc: Run the binary file
@@ -41,11 +55,23 @@ tasks:
         - { OS: windows, ARCH: arm64, EXT: .exe}
         - { OS: darwin, ARCH: amd64}
         - { OS: darwin, ARCH: arm64}
-        cmd: GOOS={{.ITEM.OS}} GOARCH={{.ITEM.ARCH}} go build -o ./build/git-profile-{{.GIT_VERSION}}-{{.ITEM.OS}}-{{.ITEM.ARCH}}{{.ITEM.EXT}}  -ldflags="-s -w -X main.gitVersion={{.GIT_VERSION}} -X main.gitCommit={{.GIT_COMMIT}} -X main.buildDate={{.BUILD_DATE}}" {{.CLI_ARGS}} ./cmd/*.go
+        cmd: |
+          GOOS={{.ITEM.OS}} GOARCH={{.ITEM.ARCH}} go build -o ./build/git-profile-{{.GIT_VERSION}}-{{.ITEM.OS}}-{{.ITEM.ARCH}}{{.ITEM.EXT}}  -ldflags="-s -w -X main.version={{.GIT_VERSION}} -X main.gitCommit={{.GIT_COMMIT}} -X main.buildDate={{.BUILD_DATE}}" {{.CLI_ARGS}} ./cmd/*.go
+          shasum -a 256 "./build/git-profile-{{.GIT_VERSION}}-{{.ITEM.OS}}-{{.ITEM.ARCH}}{{.ITEM.EXT}}" > ./build/git-profile-{{.GIT_VERSION}}-{{.ITEM.OS}}-{{.ITEM.ARCH}}{{.ITEM.EXT}}.sha256
+          shasum -c ./build/git-profile-{{.GIT_VERSION}}-{{.ITEM.OS}}-{{.ITEM.ARCH}}{{.ITEM.EXT}}.sha256
+
+  check:
+    desc: Check the code
+    aliases: [ch]
+    cmds:
+      - go vet ./...
+      - go fmt ./...
+      - go mod tidy
+      - go mod verify
 
   clean:
     desc: Clean the binary files
     aliases: [cl]
     cmds:
       - go clean
-      - rm -rf ./bin ./build ./coverage.out
+      - rm -rf ./bin ./build ./coverage.txt ./coverage.html

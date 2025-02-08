@@ -1,14 +1,15 @@
 package application_test
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
 	"testing"
+
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeleteProfile_Execute(t *testing.T) {
+func TestDeleteProfileExecute(t *testing.T) {
 	t.Run("should delete the profile when it exists", func(t *testing.T) {
 		mockProfileRepository := &MockProfileRepository{}
 
@@ -48,5 +49,4 @@ func TestDeleteProfile_Execute(t *testing.T) {
 
 		mockProfileRepository.AssertExpectations(t)
 	})
-
 }

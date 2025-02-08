@@ -1,12 +1,13 @@
 package main
 
 import (
-	"backend/git-profile/cmd/command"
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
-	"backend/git-profile/pkg/infrastructure"
 	"os"
 	"path"
+
+	"github.com/b4nd/git-profile/cmd/command"
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/infrastructure"
 )
 
 const (
@@ -47,12 +48,6 @@ type RootComponentOption struct {
 }
 
 func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
-	// Set default profile file path to $HOME/.gitprofile if not provided by user
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -62,29 +57,14 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 		workingDir = option.pwd
 	}
 
-	defaultProfile := path.Join(userHomeDir, PROFILE_NAME)
-	localProfile := path.Join(workingDir, PROFILE_NAME)
-	othersProfile := []string{}
-
-	if option != nil && option.profile != "" {
-		defaultProfile = option.profile
-
-		// Check if the profile is a directory or a file
-		if info, err := os.Stat(option.profile); err == nil && info.IsDir() {
-			defaultProfile = path.Join(option.profile, PROFILE_NAME)
-		}
-	}
-
-	if option != nil && option.local {
-		defaultProfile = localProfile
-	}
-
-	if !option.local && defaultProfile != localProfile {
-		othersProfile = append(othersProfile, localProfile)
+	// Set default profile file path to $HOME/.gitprofile if not provided by user
+	profiles, err := resolveProfileLocations(workingDir, option)
+	if err != nil {
+		return nil, err
 	}
 
 	// Repositories
-	profileRepository, err := infrastructure.NewIniFileProfileRepository(defaultProfile, othersProfile)
+	profileRepository, err := infrastructure.NewIniFileProfileRepository(profiles)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +90,7 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 	amendProfileService := application.NewAmendProfileService(profileRepository, scmCommitRepository)
 
 	// Command
-	versionCommand := command.NewVersionCommand(gitVersion, gitCommit, buildDate, defaultProfile)
+	versionCommand := command.NewVersionCommand(version, gitCommit, buildDate, profiles[0])
 	createProfileCommand := command.NewSetProfileCommand(createProfileService, updateProfileService, getProfileService)
 	getProfileCommand := command.NewGetProfileCommand(getProfileService)
 	listProfileCommand := command.NewListProfileCommand(listProfilesService, currentProfileService)
@@ -142,4 +122,35 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 		CurrentProfileCommand: currentProfileCommand,
 		AmendProfileCommand:   amendProfileCommitCommand,
 	}, nil
+}
+
+func resolveProfileLocations(workingDir string, option *RootComponentOption) ([]string, error) {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	defaultProfile := path.Join(userHomeDir, PROFILE_NAME)
+	localProfile := path.Join(workingDir, PROFILE_NAME)
+
+	profiles := []string{}
+	if option != nil && option.profile != "" {
+		defaultProfile = option.profile
+
+		// Check if the profile is a directory or a file
+		if info, err := os.Stat(option.profile); err == nil && info.IsDir() {
+			defaultProfile = path.Join(option.profile, PROFILE_NAME)
+		}
+	}
+
+	if option != nil && option.local {
+		defaultProfile = localProfile
+	}
+
+	profiles = append(profiles, defaultProfile)
+	if !option.local && defaultProfile != localProfile {
+		profiles = append(profiles, localProfile)
+	}
+
+	return profiles, nil
 }

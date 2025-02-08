@@ -1,11 +1,12 @@
 package infrastructure
 
 import (
-	"backend/git-profile/pkg/domain"
 	"fmt"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/b4nd/git-profile/pkg/domain"
 )
 
 type GitCommitRepository struct {
@@ -21,7 +22,7 @@ func NewGitCommitRepository(path string) (*GitCommitRepository, error) {
 }
 
 func (r *GitCommitRepository) Get(hash *domain.ScmCommitHash) (*domain.ScmCommit, error) {
-	cmd := exec.Command("git", "log", "-1", "--format=%ai,%H,%an,%ae,%s", hash.Value())
+	cmd := exec.Command("git", "log", "-1", "--format=%ai,%H,%an,%ae,%s", hash.Value()) // #nosec G204
 	cmd.Dir = r.path
 
 	output, err := cmd.Output()
@@ -56,7 +57,7 @@ func (r *GitCommitRepository) Get(hash *domain.ScmCommitHash) (*domain.ScmCommit
 }
 
 func (r *GitCommitRepository) AmendAuthor(author *domain.ScmCommitAuthor) error {
-	cmd := exec.Command("git", "commit", "--amend", "--author=\""+author.String()+"\"", "--no-edit", "--allow-empty")
+	cmd := exec.Command("git", "commit", "--amend", "--author=\""+author.String()+"\"", "--no-edit", "--allow-empty") // #nosec G204
 	cmd.Dir = r.path
 
 	if err := cmd.Run(); err != nil {

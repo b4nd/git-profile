@@ -2,6 +2,8 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Go](https://github.com/b4nd/git-profile/actions/workflows/build.yml/badge.svg)](https://github.com/b4nd/git-profile/actions/workflows/build.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/b4nd/git-profile)](https://goreportcard.com/report/github.com/b4nd/git-profile)
+[![codecov](https://codecov.io/gh/b4nd/git-profile/graph/badge.svg?token=LR1HAJ71CY)](https://codecov.io/gh/b4nd/git-profile)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=bugs)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
@@ -14,12 +16,21 @@
 
 ## Overview
 
-Git Profile is a command-line application developed in Go, designed to manage multiple Git profiles efficiently. It provides a suite of commands to create, update, delete, and switch between different user profiles, making it easier to handle various identities across different Git repositories. This tool is particularly useful for developers who work on multiple projects with different user credentials.
+Git Profile is a command-line application developed in Go, designed to efficiently manage multiple Git profiles. It provides a suite of commands to create, update, delete, and switch between different user profiles, making it easier to handle various identities across diverse Git repositories. The commands also feature an interactive mode that prompts you for the necessary details, simplifying the setup process. This tool is particularly useful for developers who work on multiple projects with different user credentials.
 
 
 ### Example Use Case
 
 Imagine a developer working on both open-source and corporate projects. They need to switch between different Git profiles seamlessly to ensure commits are associated with the correct email and username. Instead of manually changing Git configurations every time, they can use `git-profile` to quickly switch between predefined profiles, improving workflow efficiency.
+Once you’ve configured a project profile, git-profile will remember it the next time you work on that project, saving you the hassle of reconfiguration.
+
+#### Profile Storage
+
+By default, git-profile stores profiles in `$HOME/.gitprofile`. However, you can also store them locally by using the `--local` flag, which places a `.gitprofile` file in the current folder. This feature is especially useful for keeping project-specific settings right inside the repository.
+
+#### Where the selected profile is stored
+
+git-profile uses the .git/config file in each repository to store the selected profile. This way, there’s no need to reconfigure the profile every time you work on that repository, and it also ensures that the local name and user remain consistent for each project.
 
 ![git-profile](https://raw.githubusercontent.com/b4nd/git-profile/main/doc/git-profile.gif)
 
@@ -43,7 +54,7 @@ Imagine a developer working on both open-source and corporate projects. They nee
 ### Linux
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.2/git-profile-v0.1.2-linux-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.3/git-profile-v0.1.3-linux-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -51,7 +62,7 @@ mv git-profile /usr/local/bin/
 ### macOS
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.2/git-profile-v0.1.2-darwin-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.3/git-profile-v0.1.3-darwin-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -60,7 +71,7 @@ mv git-profile /usr/local/bin/
 
 1. Download the latest Windows executable from the [releases page](https://github.com/b4nd/git-profile/releases).
 2. Extract the archive.
-3. Move the `git-profile-v0.1.2-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
+3. Move the `git-profile-v0.1.3-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
 4. Optionally, add the directory to the system `PATH` environment variable for easier access.
 
 ```powershell
@@ -164,8 +175,10 @@ This will automatically set up all dependencies and configurations needed for de
 
 ## Requirements
 
-- [Go](https://golang.org/) 1.23.6+
-- [Taskfile](https://taskfile.dev/) 1.23.6+
+- [Go](https://golang.org/) v1.23.6
+- [Taskfile](https://taskfile.dev/) v3.41.0
+- [golangci-lint](https://golangci-lint.run/) v1.63.4
+- [gosec](https://github.com/securego/gosec/) v2.22.0
 - [Git](https://git-scm.com/)
 
 ## Build

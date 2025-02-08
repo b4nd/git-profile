@@ -7,11 +7,11 @@ import (
 )
 
 // These variables are set in build step using
-// -ldflags="-X main.gitVersion=... -X main.gitCommit=... -X main.buildDate=..."
+// -ldflags="-X main.version=... -X main.gitCommit=... -X main.buildDate=..."
 var (
-	gitVersion = "v0.0.0-develop"
-	gitCommit  = "0000000"
-	buildDate  = "0000-00-00T00:00:00Z"
+	version   = "v0.0.0-develop"
+	gitCommit = "0000000"
+	buildDate = "0000-00-00T00:00:00Z"
 )
 
 // Environment Variables
@@ -37,7 +37,9 @@ func main() {
 	// Global Flags
 	rootCmd.PersistentFlags().BoolVarP(&localFlag, "local", "l", false, "Set the local profile (default is .gitprofile in the current directory)")
 	rootCmd.PersistentFlags().StringVarP(&profileFlag, "file", "f", os.Getenv(profileEnvName), "Set the profile file path (default is $HOME/.gitprofile)")
-	rootCmd.ParseFlags(os.Args[1:])
+
+	// nolint
+	rootCmd.ParseFlags(os.Args[1:]) // #nosec G104
 
 	rootComponent, err := NewRootComponent(&RootComponentOption{
 		profile: profileFlag,
@@ -58,5 +60,8 @@ func main() {
 	rootComponent.CurrentProfileCommand.Register(rootCmd)
 	rootComponent.AmendProfileCommand.Register(rootCmd)
 
-	rootCmd.Execute()
+	err = rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }

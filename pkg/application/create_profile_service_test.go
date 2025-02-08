@@ -1,15 +1,16 @@
 package application_test
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
 	"testing"
+
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateProfileService_Execute(t *testing.T) {
+func TestCreateProfileServiceExecute(t *testing.T) {
 	faker := faker.New()
 
 	params := application.CreateProfileServiceParams{
@@ -68,5 +69,67 @@ func TestCreateProfileService_Execute(t *testing.T) {
 		assert.Equal(t, assert.AnError, err)
 
 		mockProfileRepository.AssertExpectations(t)
+	})
+
+	t.Run("should return error when email is invalid", func(t *testing.T) {
+		testParams := application.CreateProfileServiceParams{
+			Workspace: params.Workspace,
+			Email:     params.Email,
+			Name:      params.Name,
+		}
+
+		testParams.Email = faker.Internet().User()
+
+		createProfileService := application.NewCreateProfileService(nil)
+		newProfile, err := createProfileService.Execute(testParams)
+
+		assert.Error(t, err)
+		assert.Nil(t, newProfile)
+
+		testParams.Email = ""
+
+		newProfile, err = createProfileService.Execute(testParams)
+
+		assert.Error(t, err)
+		assert.Nil(t, newProfile)
+	})
+
+	t.Run("should return error when name is invalid", func(t *testing.T) {
+		testParams := application.CreateProfileServiceParams{
+			Workspace: params.Workspace,
+			Email:     params.Email,
+			Name:      params.Name,
+		}
+
+		testParams.Name = ""
+
+		createProfileService := application.NewCreateProfileService(nil)
+		newProfile, err := createProfileService.Execute(testParams)
+
+		assert.Error(t, err)
+		assert.Nil(t, newProfile)
+	})
+
+	t.Run("should return error when workspace is invalid", func(t *testing.T) {
+		testParams := application.CreateProfileServiceParams{
+			Workspace: params.Workspace,
+			Email:     params.Email,
+			Name:      params.Name,
+		}
+
+		testParams.Workspace = ""
+
+		createProfileService := application.NewCreateProfileService(nil)
+		newProfile, err := createProfileService.Execute(testParams)
+
+		assert.Error(t, err)
+		assert.Nil(t, newProfile)
+
+		testParams.Workspace = faker.Person().Name()
+
+		newProfile, err = createProfileService.Execute(testParams)
+
+		assert.Error(t, err)
+		assert.Nil(t, newProfile)
 	})
 }

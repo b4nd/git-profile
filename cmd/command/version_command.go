@@ -8,20 +8,20 @@ import (
 )
 
 type VersionCommand struct {
-	GitVersion  string
+	Version     string
 	GitCommit   string
 	BuildDate   string
 	ProfilePath string
 }
 
 func NewVersionCommand(
-	gitVersion string,
+	version string,
 	gitCommit string,
 	buildDate string,
 	profilePath string,
 ) *VersionCommand {
 	return &VersionCommand{
-		GitVersion:  gitVersion,
+		Version:     version,
 		GitCommit:   gitCommit,
 		BuildDate:   buildDate,
 		ProfilePath: profilePath,
@@ -42,7 +42,7 @@ func (c *VersionCommand) Register(rootCmd *cobra.Command) {
 }
 
 func (c *VersionCommand) Execute(cmd *cobra.Command) error {
-	cmd.Printf("Git Version: %s\n", c.GitVersion)
+	cmd.Printf("Version: %s\n", c.Version)
 	cmd.Printf("Git Commit: %s\n", c.GitCommit)
 	cmd.Printf("Build Date: %s\n", c.BuildDate)
 	cmd.Printf("Go Version: %s\n", runtime.Version())

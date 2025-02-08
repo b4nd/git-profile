@@ -1,15 +1,16 @@
 package application_test
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
 	"testing"
+
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUseProfileService_Execute(t *testing.T) {
+func TestUseProfileServiceExecute(t *testing.T) {
 	faker := faker.New()
 
 	workspace, err := domain.NewProfileWorkspace(faker.Internet().User())

@@ -1,7 +1,7 @@
 package application
 
 import (
-	"backend/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/domain"
 )
 
 type GetProfileService struct {

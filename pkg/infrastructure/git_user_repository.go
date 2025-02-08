@@ -1,11 +1,12 @@
 package infrastructure
 
 import (
-	"backend/git-profile/pkg/domain"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"gopkg.in/ini.v1"
 )
@@ -53,7 +54,7 @@ func (i *GitUserRepository) Get() (*domain.ScmUser, error) {
 
 func (i *GitUserRepository) Save(user *domain.ScmUser) error {
 	if _, err := os.Stat(i.path); errors.Is(err, os.ErrNotExist) {
-		if err := os.MkdirAll(filepath.Dir(i.path), os.ModePerm); err != nil {
+		if err := os.MkdirAll(filepath.Dir(i.path), 0750); err != nil {
 			return err
 		}
 
@@ -62,7 +63,7 @@ func (i *GitUserRepository) Save(user *domain.ScmUser) error {
 			return err
 		}
 
-		file.Close()
+		defer file.Close()
 	}
 
 	cfg, err := ini.Load(i.path)

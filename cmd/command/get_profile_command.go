@@ -1,9 +1,10 @@
 package command
 
 import (
-	"backend/git-profile/pkg/application"
 	"bufio"
 	"strings"
+
+	"github.com/b4nd/git-profile/pkg/application"
 
 	"github.com/spf13/cobra"
 )

@@ -1,8 +1,8 @@
 package command
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 )
 
 var errorMessages = map[error]string{

@@ -1,4 +1,4 @@
-module backend/git-profile
+module github.com/b4nd/git-profile
 
 go 1.23.6
 

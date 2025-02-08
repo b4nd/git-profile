@@ -1,7 +1,7 @@
 package application
 
 import (
-	"backend/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/domain"
 )
 
 type AmendProfileService struct {
@@ -31,7 +31,7 @@ func (cp *AmendProfileService) Execute(params AmendProfileServiceParams) (*domai
 
 	profile, err := cp.profileRepository.Get(workspace)
 	if err != nil {
-		return nil, ErrProfileAlreadyExists
+		return nil, ErrProfileNotExists
 	}
 
 	scmHash := domain.NewScmCommitHead()

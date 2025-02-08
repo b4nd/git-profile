@@ -120,3 +120,5 @@ bin/
 build/
 
 .gitprofile*
+
+coverage.*

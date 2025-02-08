@@ -1,26 +1,26 @@
 package infrastructure
 
 import (
-	"backend/git-profile/pkg/domain"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/b4nd/git-profile/pkg/domain"
+
 	"gopkg.in/ini.v1"
 )
 
 type IniFileProfileRepository struct {
-	path   string
-	others []string
+	paths []string
 }
 
-func NewIniFileProfileRepository(path string, others []string) (*IniFileProfileRepository, error) {
-	if path == "" {
-		return nil, fmt.Errorf("path cannot be empty")
+func NewIniFileProfileRepository(paths []string) (*IniFileProfileRepository, error) {
+	if len(paths) == 0 {
+		return nil, fmt.Errorf("no paths provided")
 	}
 
-	return &IniFileProfileRepository{path, others}, nil
+	return &IniFileProfileRepository{paths}, nil
 }
 
 type iniFileSource struct {
@@ -30,13 +30,7 @@ type iniFileSource struct {
 
 func (i *IniFileProfileRepository) load() ([]*iniFileSource, error) {
 	var cfgs []*iniFileSource = make([]*iniFileSource, 0)
-	cfg, err := ini.Load(i.path)
-	if err != nil {
-		return nil, domain.ErrInvalidWorkspace
-	}
-	cfgs = append(cfgs, &iniFileSource{i.path, cfg})
-
-	for _, path := range i.others {
+	for _, path := range i.paths {
 		if info, err := os.Stat(path); err == nil && !info.IsDir() {
 			cfg, err := ini.Load(path)
 			if err != nil {
@@ -79,18 +73,21 @@ func (i *IniFileProfileRepository) Get(workspace domain.ProfileWorkspace) (*doma
 }
 
 func (i *IniFileProfileRepository) Save(profile *domain.Profile) error {
+	path := i.paths[0]
+
 	// Create the file if it does not exist
-	if _, err := os.Stat(i.path); errors.Is(err, os.ErrNotExist) {
-		if err := os.MkdirAll(filepath.Dir(i.path), os.ModePerm); err != nil {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		if err := os.MkdirAll(filepath.Dir(path), 0750); err != nil {
 			return err
 		}
 
-		file, err := os.Create(i.path)
+		path = filepath.Clean(path)
+		file, err := os.Create(path)
 		if err != nil {
 			return err
 		}
 
-		file.Close()
+		defer file.Close()
 	}
 
 	sources, err := i.load()
@@ -129,6 +126,11 @@ func (i *IniFileProfileRepository) Save(profile *domain.Profile) error {
 func (i *IniFileProfileRepository) Delete(workspace domain.ProfileWorkspace) error {
 	sources, err := i.load()
 	if err != nil {
+		return nil
+	}
+
+	// If there is no profile to delete, return nil to indicate that the profile does not exist
+	if len(sources) == 0 {
 		return nil
 	}
 

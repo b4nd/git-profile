@@ -1,8 +1,9 @@
 package application
 
 import (
-	"backend/git-profile/pkg/domain"
 	"errors"
+
+	"github.com/b4nd/git-profile/pkg/domain"
 )
 
 var ErrProfileAlreadyExists = errors.New("profile already exists")

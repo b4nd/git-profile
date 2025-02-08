@@ -1,7 +1,7 @@
 package command
 
 import (
-	"backend/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/application"
 
 	"github.com/spf13/cobra"
 )

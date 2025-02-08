@@ -1,12 +1,13 @@
 package infrastructure_test
 
 import (
-	"backend/git-profile/pkg/domain"
-	"backend/git-profile/pkg/infrastructure"
 	"os"
 	"path"
 	"testing"
 	"text/template"
+
+	"github.com/b4nd/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/infrastructure"
 
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
@@ -59,11 +60,17 @@ func generateTempFileAndProfiles(t *testing.T, length uint) (*os.File, []Profile
 func TestIniFileProfileRepository(t *testing.T) {
 	faker := faker.New()
 
+	t.Run("should return error when file is not a valid ini file", func(t *testing.T) {
+		repo, err := infrastructure.NewIniFileProfileRepository([]string{})
+		assert.Error(t, err)
+		assert.Nil(t, repo)
+	})
+
 	t.Run("should return the profile when it exists", func(t *testing.T) {
 		file, profiles, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		for _, profile := range profiles {
@@ -84,7 +91,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, _, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
@@ -98,7 +105,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, _, closeAndRemoveFile := generateTempFileAndProfiles(t, 0)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
@@ -110,7 +117,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 
 	t.Run("should return error when file does not exist", func(t *testing.T) {
 		path := path.Join(os.TempDir(), faker.RandomStringWithLength(10))
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(path, []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{path})
 		assert.NoError(t, err)
 		assert.NoFileExists(t, path)
 
@@ -125,7 +132,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, profiles, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		gettedProfiles, err := iniFileProfileRepository.List()
@@ -149,7 +156,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, _, closeAndRemoveFile := generateTempFileAndProfiles(t, 0)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		gettedProfiles, err := iniFileProfileRepository.List()
@@ -160,7 +167,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 
 	t.Run("should return array empty when file does not exist", func(t *testing.T) {
 		path := path.Join(os.TempDir(), faker.RandomStringWithLength(10))
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(path, []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{path})
 		assert.NoError(t, err)
 		assert.NoFileExists(t, path)
 
@@ -174,7 +181,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, _, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		profile, err := domain.NewProfile(
@@ -197,7 +204,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, profiles, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		profile, err := domain.NewProfile(
@@ -220,7 +227,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, _, closeAndRemoveFile := generateTempFileAndProfiles(t, 0)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		profile, err := domain.NewProfile(
@@ -241,7 +248,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 
 	t.Run("should create profile to non existing file", func(t *testing.T) {
 		path := path.Join(os.TempDir(), faker.RandomStringWithLength(10))
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(path, []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{path})
 		assert.NoError(t, err)
 		assert.NoFileExists(t, path)
 
@@ -266,7 +273,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, profiles, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		profile, err := domain.NewProfile(
@@ -292,7 +299,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, profiles, closeAndRemoveFile := generateTempFileAndProfiles(t, 100)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
@@ -311,7 +318,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		file, _, closeAndRemoveFile := generateTempFileAndProfiles(t, 0)
 		defer closeAndRemoveFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
 		profile, err := domain.NewProfile(
@@ -332,7 +339,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 
 	t.Run("should not return error when file does not exist", func(t *testing.T) {
 		path := path.Join(os.TempDir(), faker.RandomStringWithLength(10))
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(path, []string{})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{path})
 		assert.NoError(t, err)
 		assert.NoFileExists(t, path)
 
@@ -354,7 +361,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		otherFile, otherProfiles, closeAndRemoveOtherFile := generateTempFileAndProfiles(t, 2)
 		defer closeAndRemoveOtherFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{otherFile.Name()})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name(), otherFile.Name()})
 		assert.NoError(t, err)
 
 		otherProfile, err := domain.NewProfile(
@@ -379,7 +386,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		otherFile, _, closeAndRemoveOtherFile := generateTempFileAndProfiles(t, 2)
 		defer closeAndRemoveOtherFile()
 
-		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository(file.Name(), []string{otherFile.Name()})
+		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name(), otherFile.Name()})
 		assert.NoError(t, err)
 
 		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")

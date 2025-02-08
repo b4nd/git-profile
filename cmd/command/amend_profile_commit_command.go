@@ -1,8 +1,8 @@
 package command
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/spf13/cobra"
 )
@@ -65,17 +65,12 @@ func (c *AmendProfileCommitCommand) Execute(cmd *cobra.Command, workspace string
 		workspace = profileWorkspace.String()
 	}
 
-	if workspace == "" {
-		cmd.Println("Profile not found")
-		return nil
-	}
-
 	commit, err := c.amendProfileService.Execute(application.AmendProfileServiceParams{
 		Workspace: workspace,
 	})
 
 	if err != nil {
-		cmd.Print(err)
+		cmd.Printf(errorMessages[err], workspace)
 		return nil
 	}
 

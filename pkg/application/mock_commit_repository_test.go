@@ -1,7 +1,7 @@
 package application_test
 
 import (
-	"backend/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/stretchr/testify/mock"
 )

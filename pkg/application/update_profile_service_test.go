@@ -1,15 +1,16 @@
 package application_test
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
 	"testing"
+
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUpdateProfileService_Execute(t *testing.T) {
+func TestUpdateProfileServiceExecute(t *testing.T) {
 	faker := faker.New()
 
 	params := application.UpdateProfileServiceParams{

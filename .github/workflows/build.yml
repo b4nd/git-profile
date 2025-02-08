@@ -5,6 +5,7 @@ name: Go
 
 on:
   push:
+    branches: [ "main" ]
     tags: [ "v*" ]
 
 permissions:
@@ -22,25 +23,52 @@ jobs:
       with:
         task-version: '3.41.0'
 
-    - name: Set up Go
+    - name: Setup Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.23.6'
-    
+
+    - name: Setup golangci-lint
+      uses: golangci/golangci-lint-action@v6
+      with:
+        version: 'v1.63.4'
+
     - name: Set up Git
       run: |
         git config --global user.email "you@example.com"
         git config --global user.name "Your Name"
 
+    - name: Prepare
+      run: task prepare
+  
     - name: Build
       run: task build
+
+    - name: Lint
+      run: task lint
 
     - name: Test
       run: task test
 
-    - name: Archive production artifacts
+    - name: Coverage
+      run: task coverage
+  
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: b4nd/git-profile
+
+    - name: Archive build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
         path: |
           build/git-profile-*
+          
+    - name: Archive coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: |
+          coverage*

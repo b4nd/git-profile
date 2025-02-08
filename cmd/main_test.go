@@ -1,5 +1,3 @@
-//go:build !build
-
 package main
 
 import (
@@ -64,7 +62,7 @@ func initializateRootContainer(t *testing.T, option *RootComponentOption) *cobra
 	return rootCmd
 }
 
-func TestMain_Command(t *testing.T) {
+func TestMainCommand(t *testing.T) {
 	faker := faker.New()
 	stdout := new(bytes.Buffer)
 
@@ -84,7 +82,7 @@ func TestMain_Command(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Git Version")
+		assert.Contains(t, stdout.String(), "Version")
 		assert.Contains(t, stdout.String(), "Git Commit")
 		assert.Contains(t, stdout.String(), "Build Date")
 		assert.Contains(t, stdout.String(), "Go Version")
@@ -292,6 +290,26 @@ func TestMain_Command(t *testing.T) {
 		stdout.Reset()
 	})
 
+	t.Run("should show the error when non selected current profile", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+
+		rootCmd.SetOutput(stdout)
+
+		// Get the current profile
+		rootCmd.SetArgs([]string{"current"})
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "Profile not found")
+		stdout.Reset()
+	})
+
 	t.Run("should show list of profiles created", func(t *testing.T) {
 		workingDir := initializateGitRepository(t)
 
@@ -351,6 +369,15 @@ func TestMain_Command(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Contains(t, stdout.String(), "is now in use")
 		stdout.Reset()
+
+		// List all profiles verbose
+		rootCmd.SetArgs([]string{"list"})
+		err = rootCmd.Execute()
+
+		assert.Nil(t, err)
+		for _, profile := range profiels {
+			assert.Contains(t, stdout.String(), profile.Workspace)
+		}
 
 		// List all profiles verbose
 		rootCmd.SetArgs([]string{"list", "-v"})
@@ -537,7 +564,7 @@ func TestMain_Command(t *testing.T) {
 		stdout.Reset()
 	})
 
-	t.Run("should show the error when the profile does not exist", func(t *testing.T) {
+	t.Run("should show the error when the profile does not exist in amend command", func(t *testing.T) {
 		workingDir := initializateGitRepository(t)
 
 		rootCmd := initializateRootContainer(t, &RootComponentOption{
@@ -549,11 +576,189 @@ func TestMain_Command(t *testing.T) {
 		rootCmd.SetOutput(stdout)
 
 		// Amend the last commit
-		rootCmd.SetArgs([]string{"amend", "-w", "test"})
+		rootCmd.SetArgs([]string{"amend", "-w", faker.Internet().User()})
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "profile already exists")
+		assert.Contains(t, stdout.String(), "does not exist")
+		stdout.Reset()
+	})
+
+	// Test Interactive Mode
+
+	t.Run("should create a new profile in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "created successfully")
+		stdout.Reset()
+	})
+
+	t.Run("should update a profile in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "created successfully")
+		stdout.Reset()
+
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\ny\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err = rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "Profile \"test\" updated successfully")
+		stdout.Reset()
+	})
+
+	t.Run("should show the error when the profile already exists in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "created successfully")
+		stdout.Reset()
+
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\nN\n"))
+		err = rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "Enter workspace: Profile \"test\" already exists, do you want to update it? (y/N): ")
+		stdout.Reset()
+	})
+
+	t.Run("should use a profile in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "created successfully")
+		stdout.Reset()
+
+		rootCmd.SetArgs([]string{"use"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		err = rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "is now in use")
+		stdout.Reset()
+	})
+
+	t.Run("should show the error when the profile does not exist in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"use"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "No profiles found")
+		stdout.Reset()
+	})
+
+	t.Run("should delete a profile in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "created successfully")
+		stdout.Reset()
+
+		rootCmd.SetArgs([]string{"delete"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		err = rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "Profile \"test\" deleted")
+		stdout.Reset()
+	})
+
+	t.Run("should show the error when the profile does not exist in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"delete"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "Profile \"test\" does not exist")
+		stdout.Reset()
+	})
+
+	t.Run("should show name profile in interactive mode", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+		rootCmd.SetOutput(stdout)
+		rootCmd.SetArgs([]string{"set"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "created successfully")
+		stdout.Reset()
+
+		rootCmd.SetArgs([]string{"get"})
+		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		err = rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), "Workspace: test")
 		stdout.Reset()
 	})
 }

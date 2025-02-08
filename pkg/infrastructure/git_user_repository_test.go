@@ -1,11 +1,12 @@
 package infrastructure_test
 
 import (
-	"backend/git-profile/pkg/domain"
-	"backend/git-profile/pkg/infrastructure"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/b4nd/git-profile/pkg/domain"
+	"github.com/b4nd/git-profile/pkg/infrastructure"
 
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,12 @@ func initializateGitRepository(t *testing.T) string {
 
 func TestGitUserRepository(t *testing.T) {
 	faker := faker.New()
+
+	t.Run("should return an error when the path is empty", func(t *testing.T) {
+		repository, err := infrastructure.NewGitUserRepository("")
+		assert.Error(t, err)
+		assert.Nil(t, repository)
+	})
 
 	t.Run("should return an error when the profile does not exist", func(t *testing.T) {
 		path := initializateGitRepository(t)
@@ -138,5 +145,27 @@ func TestGitUserRepository(t *testing.T) {
 		user, err := repository.Get()
 		assert.Error(t, err)
 		assert.Nil(t, user)
+	})
+
+	t.Run("should return profile when set new profile and create file is not exist", func(t *testing.T) {
+		path := initializateGitRepository(t)
+		err := os.Remove(path + "/.git/config")
+		assert.NoError(t, err)
+
+		repository, err := infrastructure.NewGitUserRepository(path)
+		assert.NoError(t, err)
+
+		user := domain.NewScmUser(
+			faker.Internet().User(),
+			faker.Internet().Email(),
+			faker.Person().Name(),
+		)
+
+		err = repository.Save(user)
+		assert.NoError(t, err)
+
+		currentUser, err := repository.Get()
+		assert.NoError(t, err)
+		assert.Equal(t, user, currentUser)
 	})
 }

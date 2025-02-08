@@ -1,9 +1,10 @@
 package application_test
 
 import (
-	"backend/git-profile/pkg/application"
-	"backend/git-profile/pkg/domain"
 	"testing"
+
+	"github.com/b4nd/git-profile/pkg/application"
+	"github.com/b4nd/git-profile/pkg/domain"
 
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func generateProfiles(t *testing.T, length uint) []*domain.Profile {
 	return profiles
 }
 
-func TestListProfileService_Execute(t *testing.T) {
+func TestListProfileServiceExecute(t *testing.T) {
 	t.Run("should return all profiles", func(t *testing.T) {
 		mockProfileRepository := &MockProfileRepository{}
 

@@ -1,6 +1,6 @@
 package application
 
-import "backend/git-profile/pkg/domain"
+import "github.com/b4nd/git-profile/pkg/domain"
 
 type ListProfileService struct {
 	profileRepository domain.ProfileRepository

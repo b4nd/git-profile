@@ -1,10 +1,10 @@
 package command
 
 import (
-	"backend/git-profile/pkg/application"
 	"bufio"
-	"os"
 	"strings"
+
+	"github.com/b4nd/git-profile/pkg/application"
 
 	"github.com/spf13/cobra"
 )
@@ -68,7 +68,7 @@ git-profile set -w work -e email@example.com -n "Firstname Lastname"`,
 }
 
 func (c *SetProfileCommand) Execute(cmd *cobra.Command, workspace string, email string, name string, force bool) error {
-	reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(cmd.InOrStdin())
 
 	params := SetProfileCommandParams{
 		Workspace: workspace,
