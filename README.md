@@ -32,7 +32,7 @@ By default, git-profile stores profiles in `$HOME/.gitprofile`. However, you can
 
 git-profile uses the .git/config file in each repository to store the selected profile. This way, there’s no need to reconfigure the profile every time you work on that repository, and it also ensures that the local name and user remain consistent for each project.
 
-![git-profile](https://raw.githubusercontent.com/b4nd/git-profile/main/doc/git-profile.gif)
+[![asciicast](https://asciinema.org/a/702310.svg)](https://asciinema.org/a/702310)
 
 ## Commands Documentation
 
