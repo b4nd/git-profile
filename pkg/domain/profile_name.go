@@ -22,10 +22,6 @@ func NewProfileName(value string) (ProfileName, error) {
 	return ProfileName{value: name}, nil
 }
 
-func (n ProfileName) Value() string {
-	return n.value
-}
-
 func (n ProfileName) Equals(name ProfileName) bool {
 	return n.value == name.value
 }

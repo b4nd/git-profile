@@ -12,6 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	GitConfigFile = "/.git/config"
+)
+
 func initializateGitRepository(t *testing.T) string {
 	path, err := os.MkdirTemp("", "git")
 	assert.NoError(t, err)
@@ -114,7 +118,7 @@ func TestGitUserRepository(t *testing.T) {
 
 	t.Run("should return an error when the git repository does not have a config file", func(t *testing.T) {
 		path := initializateGitRepository(t)
-		err := os.Remove(path + "/.git/config")
+		err := os.Remove(path + GitConfigFile)
 		assert.NoError(t, err)
 
 		repository, err := infrastructure.NewGitUserRepository(path)
@@ -128,7 +132,7 @@ func TestGitUserRepository(t *testing.T) {
 
 	t.Run("should return an error when the git repository does not have a user section", func(t *testing.T) {
 		path := initializateGitRepository(t)
-		err := os.WriteFile(path+"/.git/config", []byte(`
+		err := os.WriteFile(path+GitConfigFile, []byte(`
 [core]
 	repositoryformatversion = 0
 	filemode = true
@@ -149,7 +153,7 @@ func TestGitUserRepository(t *testing.T) {
 
 	t.Run("should return profile when set new profile and create file is not exist", func(t *testing.T) {
 		path := initializateGitRepository(t)
-		err := os.Remove(path + "/.git/config")
+		err := os.Remove(path + GitConfigFile)
 		assert.NoError(t, err)
 
 		repository, err := infrastructure.NewGitUserRepository(path)

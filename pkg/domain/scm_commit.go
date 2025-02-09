@@ -17,7 +17,3 @@ func NewScmCommit(hash ScmCommitHash, author ScmCommitAuthor, date time.Time, me
 		Message: message,
 	}
 }
-
-func (g *ScmCommit) Equals(user *ScmCommit) bool {
-	return g.Hash.Equals(user.Hash)
-}

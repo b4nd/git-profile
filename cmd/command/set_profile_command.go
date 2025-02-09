@@ -82,31 +82,7 @@ func (c *SetProfileCommand) Execute(cmd *cobra.Command, workspace string, email 
 		params.Workspace = strings.TrimSpace(input)
 	}
 
-	updateProfile := false
-
-	if profile, err := c.getProfileService.Execute(application.GetProfileServiceParams{Workspace: params.Workspace}); err == nil {
-		if !force {
-			cmd.Printf("Profile \"%s\" already exists, do you want to update it? (y/N): ", profile.Workspace())
-
-			var answer string
-			answer, _ = reader.ReadString('\n')
-			answer = strings.TrimSpace(answer)
-
-			if answer != "y" {
-				return nil
-			}
-		}
-
-		updateProfile = true
-
-		if email == "" {
-			params.Email = profile.Email().String()
-		}
-
-		if name == "" {
-			params.Name = profile.Name().String()
-		}
-	}
+	updateProfile, params := c.checkAndUpdateProfile(cmd, reader, params, force)
 
 	if email == "" {
 		cmd.Print("Enter email [" + params.Email + "]: ")
@@ -141,22 +117,53 @@ func (c *SetProfileCommand) Execute(cmd *cobra.Command, workspace string, email 
 		cmd.Printf("Profile \"%s\" updated successfully", profile.Workspace().String())
 		cmd.Printf("\nSuggest to use the updated profile with the following command:\n")
 		cmd.Printf("  git-profile use %s\n", params.Workspace)
-	} else {
-		profile, err := c.createProfileService.Execute(application.CreateProfileServiceParams{
-			Workspace: params.Workspace,
-			Email:     params.Email,
-			Name:      params.Name,
-		})
 
-		if err != nil {
-			cmd.Printf(errorMessages[err], params.Workspace)
-			return nil
-		}
-
-		cmd.Printf("Profile \"%s\" created successfully", profile.Workspace().String())
-		cmd.Printf("\nSuggest to use the new profile with the following command:\n")
-		cmd.Printf("  git-profile use %s\n", params.Workspace)
+		return nil
 	}
 
+	profile, err := c.createProfileService.Execute(application.CreateProfileServiceParams{
+		Workspace: params.Workspace,
+		Email:     params.Email,
+		Name:      params.Name,
+	})
+
+	if err != nil {
+		cmd.Printf(errorMessages[err], params.Workspace)
+		return nil
+	}
+
+	cmd.Printf("Profile \"%s\" created successfully", profile.Workspace().String())
+	cmd.Printf("\nSuggest to use the new profile with the following command:\n")
+	cmd.Printf("  git-profile use %s\n", params.Workspace)
+
 	return nil
+}
+
+func (c *SetProfileCommand) checkAndUpdateProfile(cmd *cobra.Command, reader *bufio.Reader, params SetProfileCommandParams, force bool) (bool, SetProfileCommandParams) {
+	profile, err := c.getProfileService.Execute(application.GetProfileServiceParams{Workspace: params.Workspace})
+	if err != nil {
+		return false, params
+	}
+
+	if !force {
+		cmd.Printf("Profile \"%s\" already exists, do you want to update it? (y/N): ", profile.Workspace())
+
+		var answer string
+		answer, _ = reader.ReadString('\n')
+		answer = strings.TrimSpace(answer)
+
+		if answer != "y" {
+			return false, params
+		}
+	}
+
+	if params.Email == "" {
+		params.Email = profile.Email().String()
+	}
+
+	if params.Name == "" {
+		params.Name = profile.Name().String()
+	}
+
+	return true, params
 }
