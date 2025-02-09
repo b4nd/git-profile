@@ -28,10 +28,6 @@ func NewProfileEmail(value string) (ProfileEmail, error) {
 	return ProfileEmail{value: email}, nil
 }
 
-func (e ProfileEmail) Value() string {
-	return e.value
-}
-
 func (e ProfileEmail) Equals(email ProfileEmail) bool {
 	return e.value == email.value
 }

@@ -2,12 +2,24 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"testing"
 
 	"github.com/jaswdr/faker"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	MsgProfileCreatedSuccessfully = "Profile \"%s\" created successfully"
+	MsgProfileUpdatedSuccessfully = "Profile \"%s\" updated successfully"
+	MsgProfileDeleted             = "Profile \"%s\" deleted"
+	ErrProfileInUse               = "Profile \"%s\" is now in use"
+	ErrProfileAlreadyExists       = "Profile \"%s\" already exists"
+	ErrProfileNotExist            = "Profile \"%s\" does not exist"
+	ErrProfilesNotFound           = "No profiles found"
+	ErrProfileNotFound            = "Profile not found"
 )
 
 func initializateGitRepository(t *testing.T) string {
@@ -120,7 +132,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "No profiles found")
+		assert.Contains(t, stdout.String(), ErrProfilesNotFound)
 		stdout.Reset()
 	})
 
@@ -143,7 +155,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Get the current profile
@@ -151,9 +163,9 @@ func TestMainCommand(t *testing.T) {
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Workspace: "+workspace)
-		assert.Contains(t, stdout.String(), "Email: "+email)
-		assert.Contains(t, stdout.String(), "Name: "+name)
+		assert.Contains(t, stdout.String(), workspace)
+		assert.Contains(t, stdout.String(), email)
+		assert.Contains(t, stdout.String(), name)
 		stdout.Reset()
 
 		// List all profiles verbose
@@ -161,9 +173,9 @@ func TestMainCommand(t *testing.T) {
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Workspace: "+workspace)
-		assert.Contains(t, stdout.String(), "Email: "+email)
-		assert.Contains(t, stdout.String(), "Name: "+name)
+		assert.Contains(t, stdout.String(), workspace)
+		assert.Contains(t, stdout.String(), email)
+		assert.Contains(t, stdout.String(), name)
 		stdout.Reset()
 	})
 
@@ -186,15 +198,15 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Delete the current profile
-		rootCmd.SetArgs([]string{"delete", "-w", workspace})
+		rootCmd.SetArgs([]string{"delete", workspace})
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \""+workspace+"\" deleted")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileDeleted, workspace))
 		stdout.Reset()
 
 		// List all profiles
@@ -202,7 +214,7 @@ func TestMainCommand(t *testing.T) {
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "No profiles found")
+		assert.Contains(t, stdout.String(), ErrProfilesNotFound)
 		stdout.Reset()
 	})
 
@@ -223,7 +235,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \""+workspace+"\" does not exist")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileNotExist, workspace))
 		stdout.Reset()
 	})
 
@@ -244,7 +256,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \""+workspace+"\" does not exist")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileNotExist, workspace))
 		stdout.Reset()
 	})
 
@@ -268,17 +280,17 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Get the current profile
-		rootCmd.SetArgs([]string{"use", "-w", workspace})
+		rootCmd.SetArgs([]string{"use", workspace})
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "is now in use")
-		assert.Contains(t, stdout.String(), "Email: "+email)
-		assert.Contains(t, stdout.String(), "Name: "+name)
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileInUse, workspace))
+		assert.Contains(t, stdout.String(), email)
+		assert.Contains(t, stdout.String(), name)
 		stdout.Reset()
 
 		// Get the current profile
@@ -306,7 +318,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile not found")
+		assert.Contains(t, stdout.String(), ErrProfileNotFound)
 		stdout.Reset()
 	})
 
@@ -348,7 +360,7 @@ func TestMainCommand(t *testing.T) {
 			err := rootCmd.Execute()
 
 			assert.Nil(t, err)
-			assert.Contains(t, stdout.String(), "created successfully")
+			assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, profile.Workspace))
 			stdout.Reset()
 		}
 
@@ -367,7 +379,7 @@ func TestMainCommand(t *testing.T) {
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "is now in use")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileInUse, profiels[0].Workspace))
 		stdout.Reset()
 
 		// List all profiles verbose
@@ -385,9 +397,9 @@ func TestMainCommand(t *testing.T) {
 
 		assert.Nil(t, err)
 		for _, profile := range profiels {
-			assert.Contains(t, stdout.String(), "Workspace: "+profile.Workspace)
-			assert.Contains(t, stdout.String(), "Email: "+profile.Email)
-			assert.Contains(t, stdout.String(), "Name: "+profile.Name)
+			assert.Contains(t, stdout.String(), profile.Workspace)
+			assert.Contains(t, stdout.String(), profile.Email)
+			assert.Contains(t, stdout.String(), profile.Name)
 			if profile.Workspace == profiels[0].Workspace {
 				assert.Contains(t, stdout.String(), "Current: true")
 			}
@@ -411,21 +423,21 @@ func TestMainCommand(t *testing.T) {
 		name := faker.Person().Name()
 
 		// Create a new profile
-		rootCmd.SetArgs([]string{"set", "-w", workspace, "-n", name, "-e", email})
+		rootCmd.SetArgs([]string{"set", workspace, "-n", name, "-e", email})
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Get the current profile
-		rootCmd.SetArgs([]string{"get", "-w", workspace})
+		rootCmd.SetArgs([]string{"get", workspace})
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Workspace: "+workspace)
-		assert.Contains(t, stdout.String(), "Email: "+email)
-		assert.Contains(t, stdout.String(), "Name: "+name)
+		assert.Contains(t, stdout.String(), workspace)
+		assert.Contains(t, stdout.String(), email)
+		assert.Contains(t, stdout.String(), name)
 		stdout.Reset()
 
 		// Update the current profile
@@ -435,7 +447,7 @@ func TestMainCommand(t *testing.T) {
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "updated successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileUpdatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Get the current profile
@@ -443,9 +455,9 @@ func TestMainCommand(t *testing.T) {
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Workspace: "+workspace)
-		assert.Contains(t, stdout.String(), "Email: "+newEmail)
-		assert.Contains(t, stdout.String(), "Name: "+newName)
+		assert.Contains(t, stdout.String(), workspace)
+		assert.Contains(t, stdout.String(), newEmail)
+		assert.Contains(t, stdout.String(), newName)
 		stdout.Reset()
 	})
 
@@ -467,7 +479,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \""+workspace+"\" does not exist")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileNotExist, workspace))
 		stdout.Reset()
 	})
 
@@ -482,6 +494,7 @@ func TestMainCommand(t *testing.T) {
 
 		rootCmd.SetOutput(stdout)
 
+		workspace := faker.Internet().User()
 		email := faker.Internet().Email()
 		name := faker.Person().Name()
 
@@ -494,15 +507,15 @@ func TestMainCommand(t *testing.T) {
 		newName := faker.Person().Name()
 
 		// Create a new profile
-		rootCmd.SetArgs([]string{"set", "-w", "test", "-n", newName, "-e", newEmail})
+		rootCmd.SetArgs([]string{"set", "-w", workspace, "-n", newName, "-e", newEmail})
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Amend the last commit
-		rootCmd.SetArgs([]string{"amend", "-w", "test"})
+		rootCmd.SetArgs([]string{"amend", workspace})
 
 		err = rootCmd.Execute()
 
@@ -526,6 +539,7 @@ func TestMainCommand(t *testing.T) {
 
 		rootCmd.SetOutput(stdout)
 
+		workspace := faker.Internet().User()
 		email := faker.Internet().Email()
 		name := faker.Person().Name()
 
@@ -535,19 +549,19 @@ func TestMainCommand(t *testing.T) {
 		assert.Equal(t, name+","+email+"\n", commit)
 
 		// Create a new profile
-		rootCmd.SetArgs([]string{"set", "-w", "test", "-n", name, "-e", email})
+		rootCmd.SetArgs([]string{"set", "-w", workspace, "-n", name, "-e", email})
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		// Set the current profile
-		rootCmd.SetArgs([]string{"use", "-w", "test"})
+		rootCmd.SetArgs([]string{"use", "-w", workspace})
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "is now in use")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileInUse, workspace))
 		stdout.Reset()
 
 		// Amend the last commit
@@ -584,6 +598,46 @@ func TestMainCommand(t *testing.T) {
 		stdout.Reset()
 	})
 
+	t.Run("should show the error when the profile empty in amend command", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+
+		rootCmd.SetOutput(stdout)
+
+		// Amend the last commit
+		rootCmd.SetArgs([]string{"amend"})
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), ErrProfileNotFound)
+		stdout.Reset()
+	})
+
+	t.Run("should show the error when the profile invalid in amend command", func(t *testing.T) {
+		workingDir := initializateGitRepository(t)
+
+		rootCmd := initializateRootContainer(t, &RootComponentOption{
+			profile: t.TempDir(),
+			local:   false,
+			pwd:     workingDir,
+		})
+
+		rootCmd.SetOutput(stdout)
+
+		// Amend the last commit
+		rootCmd.SetArgs([]string{"amend", "-w", "test test"})
+		err := rootCmd.Execute()
+
+		assert.Nil(t, err)
+		assert.Contains(t, stdout.String(), ErrProfileNotFound)
+		stdout.Reset()
+	})
+
 	// Test Interactive Mode
 
 	t.Run("should create a new profile in interactive mode", func(t *testing.T) {
@@ -593,13 +647,16 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 	})
 
@@ -610,21 +667,24 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\ny\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\ny\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \"test\" updated successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileUpdatedSuccessfully, workspace))
 		stdout.Reset()
 	})
 
@@ -635,21 +695,24 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\nN\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\nN\n"))
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Enter workspace: Profile \"test\" already exists, do you want to update it? (y/N): ")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileAlreadyExists, workspace))
 		stdout.Reset()
 	})
 
@@ -660,21 +723,24 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		rootCmd.SetArgs([]string{"use"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n"))
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "is now in use")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileInUse, workspace))
 		stdout.Reset()
 	})
 
@@ -691,7 +757,7 @@ func TestMainCommand(t *testing.T) {
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "No profiles found")
+		assert.Contains(t, stdout.String(), ErrProfilesNotFound)
 		stdout.Reset()
 	})
 
@@ -702,21 +768,24 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		rootCmd.SetArgs([]string{"delete"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n"))
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \"test\" deleted")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileDeleted, workspace))
 		stdout.Reset()
 	})
 
@@ -727,13 +796,16 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"delete"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Profile \"test\" does not exist")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(ErrProfileNotExist, workspace))
 		stdout.Reset()
 	})
 
@@ -744,21 +816,23 @@ func TestMainCommand(t *testing.T) {
 			local:   false,
 			pwd:     workingDir,
 		})
+		workspace := faker.Internet().User()
+
 		rootCmd.SetOutput(stdout)
 		rootCmd.SetArgs([]string{"set"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n" + faker.Internet().Email() + "\n" + faker.Person().Name() + "\n"))
 		err := rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "created successfully")
+		assert.Contains(t, stdout.String(), fmt.Sprintf(MsgProfileCreatedSuccessfully, workspace))
 		stdout.Reset()
 
 		rootCmd.SetArgs([]string{"get"})
-		rootCmd.SetIn(bytes.NewBufferString("test\n"))
+		rootCmd.SetIn(bytes.NewBufferString(workspace + "\n"))
 		err = rootCmd.Execute()
 
 		assert.Nil(t, err)
-		assert.Contains(t, stdout.String(), "Workspace: test")
+		assert.Contains(t, stdout.String(), "Workspace: "+workspace)
 		stdout.Reset()
 	})
 }

@@ -30,7 +30,7 @@ func (c *AmendProfileCommitCommand) Register(rootCmd *cobra.Command) {
 		Short:   "Amend author of last commit",
 		Long:    `Amend author of last commit`,
 		Example: `git-profile amend`,
-		Args:    cobra.NoArgs,
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if workspace == "" && len(args) > 0 {
 				workspace = args[0]

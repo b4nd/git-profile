@@ -4,6 +4,13 @@
 [![Go](https://github.com/b4nd/git-profile/actions/workflows/build.yml/badge.svg)](https://github.com/b4nd/git-profile/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/b4nd/git-profile)](https://goreportcard.com/report/github.com/b4nd/git-profile)
 [![codecov](https://codecov.io/gh/b4nd/git-profile/graph/badge.svg?token=LR1HAJ71CY)](https://codecov.io/gh/b4nd/git-profile)
+[![Release](https://img.shields.io/github/release/b4nd/git-profile.svg)](https://github.com/b4nd/git-profile/releases/latest)
+[![GitHub Releases Stats of git-profile](https://img.shields.io/github/downloads/b4nd/git-profile/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=b4nd&repository=git-profile)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3724fd18d1934563857274672e02f3fa)](https://app.codacy.com/gh/b4nd/git-profile/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/3724fd18d1934563857274672e02f3fa)](https://app.codacy.com/gh/b4nd/git-profile/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+
+#### SonarCloud 
+
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=bugs)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=b4nd_git-profile&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=b4nd_git-profile)
@@ -32,7 +39,7 @@ By default, git-profile stores profiles in `$HOME/.gitprofile`. However, you can
 
 git-profile uses the .git/config file in each repository to store the selected profile. This way, there’s no need to reconfigure the profile every time you work on that repository, and it also ensures that the local name and user remain consistent for each project.
 
-[![asciicast](https://asciinema.org/a/702310.svg)](https://asciinema.org/a/702310)
+![git-profile](https://raw.githubusercontent.com/b4nd/git-profile/main/doc/git-profile.gif)
 
 ## Commands Documentation
 

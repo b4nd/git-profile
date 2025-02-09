@@ -13,9 +13,3 @@ func NewScmUser(workspace string, email string, name string) *ScmUser {
 		Name:       name,
 	}
 }
-
-func (g *ScmUser) Equals(user *ScmUser) bool {
-	return g.Name == user.Name &&
-		g.Email == user.Email &&
-		g.Workespace == user.Workespace
-}

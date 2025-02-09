@@ -14,6 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	DataGitRepo  = "data_git_repo.zip"
+	EmptyGitRepo = "empty_git_repo.zip"
+)
+
 // unzipFile unzips a file into a destination folder path using the zip package.
 func unzipFile(t *testing.T, src string, dest string) {
 	r, err := zip.OpenReader(src)
@@ -118,7 +123,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return HEAD commit", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -134,7 +139,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return commit from 'master' branch", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -151,7 +156,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return initial commit by full hash", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -168,7 +173,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return initial commit by short hash", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -185,7 +190,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return commit from 'develop' branch", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -202,7 +207,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return an error when hash is not found", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -218,7 +223,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return an error when path is empty", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "empty_git_repo.zip")
+		path := initializateZipGitRepository(t, EmptyGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -250,7 +255,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 	})
 
 	t.Run("should return last commit when upadate author", func(t *testing.T) {
-		path := initializateZipGitRepository(t, "data_git_repo.zip")
+		path := initializateZipGitRepository(t, DataGitRepo)
 
 		repo, err := infrastructure.NewGitCommitRepository(path)
 		assert.NoError(t, err)
@@ -264,7 +269,10 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 
 		assert.Equal(t, commitHead, commit)
 
-		author, err := domain.NewScmCommitAuthor("New Name", "new@example.com")
+		email := faker.Internet().Email()
+		name := faker.Person().Name()
+
+		author, err := domain.NewScmCommitAuthor(name, email)
 		assert.NoError(t, err)
 
 		err = repo.AmendAuthor(&author)
@@ -276,7 +284,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 		assert.Equal(t, author.Name(), newCommit.Author.Name())
 		assert.Equal(t, author.Email(), newCommit.Author.Email())
 
-		assert.NotEqual(t, newCommit.Hash.Value(), commit.Hash.Value())
+		assert.NotEqual(t, newCommit.Hash.String(), commit.Hash.String())
 		assert.Equal(t, newCommit.Message, commit.Message)
 		assert.Equal(t, newCommit.Date, commit.Date)
 	})

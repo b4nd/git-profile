@@ -31,14 +31,6 @@ func NewScmCommitHead() ScmCommitHash {
 	return hash
 }
 
-func (n ScmCommitHash) Value() string {
-	return n.value
-}
-
-func (n ScmCommitHash) Equals(name ScmCommitHash) bool {
-	return n.value == name.value
-}
-
 func (n ScmCommitHash) String() string {
 	return n.value
 }

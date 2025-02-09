@@ -22,7 +22,7 @@ func NewGitCommitRepository(path string) (*GitCommitRepository, error) {
 }
 
 func (r *GitCommitRepository) Get(hash *domain.ScmCommitHash) (*domain.ScmCommit, error) {
-	cmd := exec.Command("git", "log", "-1", "--format=%ai,%H,%an,%ae,%s", hash.Value()) // #nosec G204
+	cmd := exec.Command("git", "log", "-1", "--format=%ai,%H,%an,%ae,%s", hash.String()) // #nosec G204
 	cmd.Dir = r.path
 
 	output, err := cmd.Output()

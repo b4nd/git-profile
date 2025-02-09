@@ -31,10 +31,6 @@ func NewProfileWorkspace(value string) (ProfileWorkspace, error) {
 	return ProfileWorkspace{value: workspace}, nil
 }
 
-func (w ProfileWorkspace) Value() string {
-	return w.value
-}
-
 func (w ProfileWorkspace) Equals(workspace ProfileWorkspace) bool {
 	return w.value == workspace.value
 }

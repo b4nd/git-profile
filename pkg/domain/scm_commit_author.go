@@ -43,10 +43,6 @@ func (n ScmCommitAuthor) Email() string {
 	return n.email
 }
 
-func (n ScmCommitAuthor) Equals(name ScmCommitAuthor) bool {
-	return n.name == name.name && n.email == name.email
-}
-
 func (n ScmCommitAuthor) String() string {
 	return n.name + " <" + n.email + ">"
 }

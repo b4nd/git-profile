@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const WorkspaceInvalid = "non-existing-workspace"
+
 const ProfileTemplate string = `{{range .}}
 [{{.Workspace}}]
 name = {{.Name}}
@@ -94,7 +96,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
-		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
+		workspace, err := domain.NewProfileWorkspace(WorkspaceInvalid)
 		assert.NoError(t, err)
 
 		_, err = iniFileProfileRepository.Get(workspace)
@@ -108,7 +110,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
-		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
+		workspace, err := domain.NewProfileWorkspace(WorkspaceInvalid)
 		assert.NoError(t, err)
 
 		_, err = iniFileProfileRepository.Get(workspace)
@@ -121,7 +123,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NoFileExists(t, path)
 
-		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
+		workspace, err := domain.NewProfileWorkspace(WorkspaceInvalid)
 		assert.NoError(t, err)
 
 		_, err = iniFileProfileRepository.Get(workspace)
@@ -302,7 +304,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name()})
 		assert.NoError(t, err)
 
-		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
+		workspace, err := domain.NewProfileWorkspace(WorkspaceInvalid)
 		assert.NoError(t, err)
 
 		err = iniFileProfileRepository.Delete(workspace)
@@ -389,7 +391,7 @@ func TestIniFileProfileRepository(t *testing.T) {
 		iniFileProfileRepository, err := infrastructure.NewIniFileProfileRepository([]string{file.Name(), otherFile.Name()})
 		assert.NoError(t, err)
 
-		workspace, err := domain.NewProfileWorkspace("non-existing-workspace")
+		workspace, err := domain.NewProfileWorkspace(WorkspaceInvalid)
 		assert.NoError(t, err)
 
 		err = iniFileProfileRepository.Delete(workspace)
