@@ -1,5 +1,6 @@
 # Git Profile
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3332f949cfb14f1c9d6cee1fb67ee78a)](https://app.codacy.com/gh/b4nd/git-profile?utm_source=github.com&utm_medium=referral&utm_content=b4nd/git-profile&utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Go](https://github.com/b4nd/git-profile/actions/workflows/build.yml/badge.svg)](https://github.com/b4nd/git-profile/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/b4nd/git-profile)](https://goreportcard.com/report/github.com/b4nd/git-profile)
