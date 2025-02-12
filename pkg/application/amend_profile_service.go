@@ -34,14 +34,14 @@ func (cp *AmendProfileService) Execute(params AmendProfileServiceParams) (*domai
 		return nil, ErrProfileNotExists
 	}
 
-	scmHash := domain.NewScmCommitHead()
+	scmHash := domain.NewScmCommitHashHead()
 	scmCommit, err := cp.scmCommitRepository.Get(&scmHash)
 	if err != nil {
 		return nil, err
 	}
 
 	// If the author of the commit is the same as the profile, return the commit as the profile
-	if scmCommit.Author.Name() == profile.Email().String() && scmCommit.Author.Email() == profile.Email().String() {
+	if scmCommit.Author.Name() == profile.Name().String() && scmCommit.Author.Email() == profile.Email().String() {
 		return scmCommit, nil
 	}
 

@@ -85,4 +85,20 @@ func TestUseProfileServiceExecute(t *testing.T) {
 		mockGitUserRepository.AssertExpectations(t)
 		mockProfileRepository.AssertExpectations(t)
 	})
+
+	t.Run("should return an error when the profile is invalid", func(t *testing.T) {
+		mockProfileRepository := &MockProfileRepository{}
+		mockGitUserRepository := &MockUserRepository{}
+
+		currentProfileService := application.NewUseProfileService(mockProfileRepository, mockGitUserRepository)
+		currentProfile, err := currentProfileService.Execute(application.UseProfileServiceParams{
+			Workspace: "test invalid",
+		})
+
+		assert.Error(t, err)
+		assert.Nil(t, currentProfile)
+
+		mockGitUserRepository.AssertExpectations(t)
+		mockProfileRepository.AssertExpectations(t)
+	})
 }

@@ -129,7 +129,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, repo)
 
-		hash := domain.NewScmCommitHead()
+		hash := domain.NewScmCommitHashHead()
 
 		commit, err := repo.Get(&hash)
 		assert.NoError(t, err)
@@ -261,7 +261,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, repo)
 
-		hash := domain.NewScmCommitHead()
+		hash := domain.NewScmCommitHashHead()
 
 		commit, err := repo.Get(&hash)
 		assert.NoError(t, err)

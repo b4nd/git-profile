@@ -20,7 +20,7 @@ func NewCurrentProfileCommand(
 
 func (c *CurrentProfileCommand) Register(rootCmd *cobra.Command) {
 	cmd := &cobra.Command{
-		Use:     "current [-w workspace]",
+		Use:     "current",
 		Short:   "Displays the currently active profile",
 		Example: `git-profile current`,
 		Args:    cobra.NoArgs,

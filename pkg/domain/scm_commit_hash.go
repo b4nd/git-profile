@@ -26,7 +26,7 @@ func NewScmCommitHash(value string) (ScmCommitHash, error) {
 	return ScmCommitHash{value: name}, nil
 }
 
-func NewScmCommitHead() ScmCommitHash {
+func NewScmCommitHashHead() ScmCommitHash {
 	hash, _ := NewScmCommitHash("HEAD")
 	return hash
 }

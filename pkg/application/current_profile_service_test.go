@@ -98,4 +98,22 @@ func TestCurrentProfileServiceExecute(t *testing.T) {
 		mockGitUserRepository.AssertExpectations(t)
 		mockProfileRepository.AssertExpectations(t)
 	})
+
+	t.Run("should return an error when the profile is invalid", func(t *testing.T) {
+		mockProfileRepository := &MockProfileRepository{}
+		mockGitUserRepository := &MockUserRepository{}
+
+		mockGitUserRepository.On("Get").Return(&domain.ScmUser{
+			Workespace: "test invalid",
+		}, nil)
+
+		currentProfileService := application.NewCurrentProfileService(mockProfileRepository, mockGitUserRepository)
+		profile, err := currentProfileService.Execute()
+
+		assert.Error(t, err)
+		assert.Nil(t, profile)
+
+		mockProfileRepository.AssertExpectations(t)
+		mockGitUserRepository.AssertExpectations(t)
+	})
 }

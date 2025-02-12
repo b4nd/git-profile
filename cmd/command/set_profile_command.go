@@ -40,7 +40,11 @@ func (c *SetProfileCommand) Register(rootCmd *cobra.Command) {
 	var force bool
 
 	cmd := &cobra.Command{
-		Use:   "set [-w workspace] [-e email] [-n name] [--force]",
+		Use: "set [-w workspace] [-e email] [-n name] [--force]",
+		Aliases: []string{
+			"add",
+			"create",
+		},
 		Short: "Sets or updates a profile configuration.",
 		Long: `Sets or update a profile with the given workspace, email and name.
 If no arguments are provided, the command will prompt for the missing values.

@@ -51,4 +51,18 @@ func TestGetProfileExecute(t *testing.T) {
 
 		mockProfileRepository.AssertExpectations(t)
 	})
+
+	t.Run("should return an error when the profile is invalid", func(t *testing.T) {
+		mockProfileRepository := &MockProfileRepository{}
+
+		getProfileService := application.NewGetProfileService(mockProfileRepository)
+		profile, err := getProfileService.Execute(application.GetProfileServiceParams{
+			Workspace: "test invalid",
+		})
+
+		assert.Error(t, err)
+		assert.Nil(t, profile)
+
+		mockProfileRepository.AssertExpectations(t)
+	})
 }
