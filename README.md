@@ -49,7 +49,7 @@ git-profile uses the .git/config file in each repository to store the selected p
 | `git-profile [delete\|del]` | Deletes a specified profile from the system.               |
 | `git-profile get`           | Retrieves details of a specific profile.                   |
 | `git-profile [list\|ls]`    | Lists all available profiles.                              |
-| `git-profile set`           | Sets or updates a profile configuration.                   |
+| `git-profile [set\|add]`    | Sets or updates a profile configuration.                   |
 | `git-profile use`           | Switches to a specific profile for operations.             |
 | `git-profile amend`         | Updates email and name of the current profile last commit. |
 | `git-profile version`       | Displays the current version of the application.           |
@@ -61,7 +61,7 @@ git-profile uses the .git/config file in each repository to store the selected p
 ### Linux
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.3/git-profile-v0.1.3-linux-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.4/git-profile-v0.1.4-linux-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -69,7 +69,7 @@ mv git-profile /usr/local/bin/
 ### macOS
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.3/git-profile-v0.1.3-darwin-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.4/git-profile-v0.1.4-darwin-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -78,7 +78,7 @@ mv git-profile /usr/local/bin/
 
 1. Download the latest Windows executable from the [releases page](https://github.com/b4nd/git-profile/releases).
 2. Extract the archive.
-3. Move the `git-profile-v0.1.3-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
+3. Move the `git-profile-v0.1.4-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
 4. Optionally, add the directory to the system `PATH` environment variable for easier access.
 
 ```powershell

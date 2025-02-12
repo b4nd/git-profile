@@ -3,6 +3,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-02-11
+
+### Added
+
+- Added more tests to improve code coverage
+- Added 'create' and 'add' aliases to the 'set' command
+
+### Fixed
+
+- Fixed help text in certain commands
+- Fixed a bug in the 'amend' command
+
+
 ## [0.1.3] - 2025-02-08
 
 ### Changed
