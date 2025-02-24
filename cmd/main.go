@@ -27,7 +27,7 @@ var (
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "git-profile [command]",
+		Use:   "git profile [command]",
 		Short: "Manage your git profiles",
 		Annotations: map[string]string{
 			cobra.CommandDisplayNameAnnotation: "git profile",
@@ -56,9 +56,10 @@ func main() {
 	rootComponent.GetProfileCommand.Register(rootCmd)
 	rootComponent.ListProfileCommand.Register(rootCmd)
 	rootComponent.DeleteProfileCommand.Register(rootCmd)
-	rootComponent.UseProfileCommand.Register(rootCmd)
+	rootComponent.SetProfileCommand.Register(rootCmd)
 	rootComponent.CurrentProfileCommand.Register(rootCmd)
 	rootComponent.AmendProfileCommand.Register(rootCmd)
+	rootComponent.UnsetProfileCommand.Register(rootCmd)
 
 	err = rootCmd.Execute()
 	if err != nil {

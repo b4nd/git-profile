@@ -10,164 +10,111 @@ import (
 )
 
 type SetProfileCommand struct {
-	createProfileService *application.CreateProfileService
-	updateProfileService *application.UpdateProfileService
-	getProfileService    *application.GetProfileService
+	setProfileService       *application.SetProfileService
+	setGlobalProfileService *application.SetProfileService
+	getProfileService       *application.GetProfileService
+	listProfileService      *application.ListProfileService
 }
 
 func NewSetProfileCommand(
-	createProfileService *application.CreateProfileService,
-	updateProfileService *application.UpdateProfileService,
+	setProfileService *application.SetProfileService,
+	setGlobalProfileService *application.SetProfileService,
 	getProfileService *application.GetProfileService,
+	listProfileService *application.ListProfileService,
 ) *SetProfileCommand {
 	return &SetProfileCommand{
-		createProfileService,
-		updateProfileService,
+		setProfileService,
+		setGlobalProfileService,
 		getProfileService,
+		listProfileService,
 	}
 }
 
 type SetProfileCommandParams struct {
 	Workspace string
-	Email     string
-	Name      string
 }
 
 func (c *SetProfileCommand) Register(rootCmd *cobra.Command) {
 	var workspace string
-	var email string
-	var name string
-	var force bool
+	var global bool
 
 	cmd := &cobra.Command{
-		Use: "set [-w workspace] [-e email] [-n name] [--force]",
+		Use: "set [-w workspace] [--global]",
 		Aliases: []string{
-			"add",
-			"create",
+			"use",
+			"switch",
 		},
-		Short: "Sets or updates a profile configuration.",
-		Long: `Sets or update a profile with the given workspace, email and name.
+		Short: "Switches to a specific profile for operations.",
+		Long: `Switch to a profile with the given workspace.
 If no arguments are provided, the command will prompt for the missing values.
 `,
-		Example: `git-profile set
-git-profile set work
-git-profile set --workspace work --email email@example.com --name "Firstname Lastname"
-git-profile set -w work -e email@example.com -n "Firstname Lastname"`,
+		Example: `  git profile set
+  git profile set work
+  git profile set --workspace work
+  git profile set -w work`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if workspace == "" && len(args) > 0 {
 				workspace = args[0]
 			}
 
-			return c.Execute(cmd, workspace, email, name, force)
+			return c.Execute(cmd, workspace, global)
 		},
 	}
 
 	cmd.Flags().StringVarP(&workspace, "workspace", "w", "", "The workspace of the profile")
-	cmd.Flags().StringVarP(&email, "email", "e", "", "The email of the profile")
-	cmd.Flags().StringVarP(&name, "name", "n", "", "The name of the profile")
-	cmd.Flags().BoolVar(&force, "force", false, "Force the update of an existing profile")
+	cmd.Flags().BoolVarP(&global, "global", "g", false, "Use the profile globally for all repositories (default: false)")
 
 	rootCmd.AddCommand(cmd)
 }
 
-func (c *SetProfileCommand) Execute(cmd *cobra.Command, workspace string, email string, name string, force bool) error {
+func (c *SetProfileCommand) Execute(cmd *cobra.Command, workspace string, global bool) error {
 	reader := bufio.NewReader(cmd.InOrStdin())
 
 	params := SetProfileCommandParams{
 		Workspace: workspace,
-		Email:     email,
-		Name:      name,
 	}
 
 	if workspace == "" {
+		profiles, err := c.listProfileService.Execute()
+
+		if err != nil {
+			cmd.Print(errorMessages[err])
+			return nil
+		}
+
+		if len(profiles) == 0 {
+			cmd.Println("No profiles found")
+			return nil
+		}
+
+		for _, profile := range profiles {
+			cmd.Printf("%s\n", profile.Workspace().String())
+		}
+
 		cmd.Print("Enter workspace: ")
 		input, _ := reader.ReadString('\n')
 		params.Workspace = strings.TrimSpace(input)
 	}
 
-	updateProfile, params := c.checkAndUpdateProfile(cmd, reader, params, force)
-
-	if email == "" {
-		cmd.Print("Enter email [" + params.Email + "]: ")
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(input)
-		if input != "" {
-			params.Email = input
-		}
+	service := c.setProfileService
+	if global {
+		service = c.setGlobalProfileService
 	}
 
-	if name == "" {
-		cmd.Print("Enter name [" + params.Name + "]: ")
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(input)
-		if input != "" {
-			params.Name = input
-		}
-	}
-
-	if updateProfile {
-		profile, err := c.updateProfileService.Execute(application.UpdateProfileServiceParams{
-			Workspace: params.Workspace,
-			Email:     params.Email,
-			Name:      params.Name,
-		})
-
-		if err != nil {
-			cmd.Printf(errorMessages[err], params.Workspace)
-			return nil
-		}
-
-		cmd.Printf("Profile \"%s\" updated successfully", profile.Workspace().String())
-		cmd.Printf("\nSuggest to use the updated profile with the following command:\n")
-		cmd.Printf("  git-profile use %s\n", params.Workspace)
-
-		return nil
-	}
-
-	profile, err := c.createProfileService.Execute(application.CreateProfileServiceParams{
+	profile, err := service.Execute(application.SetProfileServiceParams{
 		Workspace: params.Workspace,
-		Email:     params.Email,
-		Name:      params.Name,
 	})
 
 	if err != nil {
-		cmd.Printf(errorMessages[err], params.Workspace)
+		cmd.Printf(errorMessages[err], workspace)
 		return nil
 	}
 
-	cmd.Printf("Profile \"%s\" created successfully", profile.Workspace().String())
-	cmd.Printf("\nSuggest to use the new profile with the following command:\n")
-	cmd.Printf("  git-profile use %s\n", params.Workspace)
+	cmd.Printf("Profile \"%s\" is now in use\n", profile.Workspace().String())
+	cmd.Printf("Workspace: %s\n", profile.Workspace().String())
+	cmd.Printf("Email: %s\n", profile.Email().String())
+	cmd.Printf("Name: %s\n", profile.Name().String())
 
 	return nil
-}
-
-func (c *SetProfileCommand) checkAndUpdateProfile(cmd *cobra.Command, reader *bufio.Reader, params SetProfileCommandParams, force bool) (bool, SetProfileCommandParams) {
-	profile, err := c.getProfileService.Execute(application.GetProfileServiceParams{Workspace: params.Workspace})
-	if err != nil {
-		return false, params
-	}
-
-	if !force {
-		cmd.Printf("Profile \"%s\" already exists, do you want to update it? (y/N): ", profile.Workspace())
-
-		var answer string
-		answer, _ = reader.ReadString('\n')
-		answer = strings.TrimSpace(answer)
-
-		if answer != "y" {
-			return false, params
-		}
-	}
-
-	if params.Email == "" {
-		params.Email = profile.Email().String()
-	}
-
-	if params.Name == "" {
-		params.Name = profile.Name().String()
-	}
-
-	return true, params
 }

@@ -86,7 +86,7 @@ func TestCurrentProfileServiceExecute(t *testing.T) {
 		mockProfileRepository := &MockProfileRepository{}
 		mockGitUserRepository := &MockUserRepository{}
 
-		mockGitUserRepository.On("Get").Return(&domain.ScmUser{}, nil)
+		mockGitUserRepository.On("Get").Return(&domain.ScmUser{}, application.ErrProfileNotConfigured)
 
 		currentProfileService := application.NewCurrentProfileService(mockProfileRepository, mockGitUserRepository)
 		profile, err := currentProfileService.Execute()

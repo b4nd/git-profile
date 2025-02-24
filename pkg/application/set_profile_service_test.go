@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUseProfileServiceExecute(t *testing.T) {
+func TestSetProfileServiceExecute(t *testing.T) {
 	faker := faker.New()
 
 	workspace, err := domain.NewProfileWorkspace(faker.Internet().User())
@@ -28,7 +28,7 @@ func TestUseProfileServiceExecute(t *testing.T) {
 		scmUser.Name,
 	)
 
-	params := application.UseProfileServiceParams{
+	params := application.SetProfileServiceParams{
 		Workspace: workspace.String(),
 	}
 
@@ -41,7 +41,7 @@ func TestUseProfileServiceExecute(t *testing.T) {
 		mockProfileRepository.On("Get", workspace).Return(profile, nil)
 		mockGitUserRepository.On("Save", scmUser).Return(nil)
 
-		currentProfileService := application.NewUseProfileService(mockProfileRepository, mockGitUserRepository)
+		currentProfileService := application.NewSetProfileService(mockProfileRepository, mockGitUserRepository)
 		currentProfile, err := currentProfileService.Execute(params)
 
 		assert.NoError(t, err)
@@ -57,7 +57,7 @@ func TestUseProfileServiceExecute(t *testing.T) {
 
 		mockProfileRepository.On("Get", workspace).Return(profile, assert.AnError)
 
-		currentProfileService := application.NewUseProfileService(mockProfileRepository, mockGitUserRepository)
+		currentProfileService := application.NewSetProfileService(mockProfileRepository, mockGitUserRepository)
 		currentProfile, err := currentProfileService.Execute(params)
 
 		assert.Error(t, err)
@@ -75,7 +75,7 @@ func TestUseProfileServiceExecute(t *testing.T) {
 		mockProfileRepository.On("Get", workspace).Return(profile, nil)
 		mockGitUserRepository.On("Save", scmUser).Return(assert.AnError)
 
-		currentProfileService := application.NewUseProfileService(mockProfileRepository, mockGitUserRepository)
+		currentProfileService := application.NewSetProfileService(mockProfileRepository, mockGitUserRepository)
 		currentProfile, err := currentProfileService.Execute(params)
 
 		assert.Error(t, err)
@@ -90,8 +90,8 @@ func TestUseProfileServiceExecute(t *testing.T) {
 		mockProfileRepository := &MockProfileRepository{}
 		mockGitUserRepository := &MockUserRepository{}
 
-		currentProfileService := application.NewUseProfileService(mockProfileRepository, mockGitUserRepository)
-		currentProfile, err := currentProfileService.Execute(application.UseProfileServiceParams{
+		currentProfileService := application.NewSetProfileService(mockProfileRepository, mockGitUserRepository)
+		currentProfile, err := currentProfileService.Execute(application.SetProfileServiceParams{
 			Workspace: "test invalid",
 		})
 

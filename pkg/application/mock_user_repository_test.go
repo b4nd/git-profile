@@ -19,3 +19,8 @@ func (m *MockUserRepository) Save(user *domain.ScmUser) error {
 	args := m.Called(user)
 	return args.Error(0)
 }
+
+func (m *MockUserRepository) Delete() error {
+	args := m.Called()
+	return args.Error(0)
+}

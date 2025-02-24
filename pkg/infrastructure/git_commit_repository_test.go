@@ -275,7 +275,7 @@ func TestGitCommitRepositoryNewGitCommitRepository(t *testing.T) {
 		author, err := domain.NewScmCommitAuthor(name, email)
 		assert.NoError(t, err)
 
-		err = repo.AmendAuthor(&author)
+		err = repo.Save(&author)
 		assert.NoError(t, err)
 
 		newCommit, err := repo.Get(&hash)

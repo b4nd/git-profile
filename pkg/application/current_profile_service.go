@@ -26,12 +26,16 @@ func (cp *CurrentProfileService) Execute() (*domain.Profile, error) {
 		return nil, err
 	}
 
-	if scmUser == nil || scmUser.Workespace == "" {
+	if scmUser == nil {
 		return nil, ErrProfileNotConfigured
 	}
 
 	workspace, err := domain.NewProfileWorkspace(scmUser.Workespace)
 	if err != nil {
+		if profile, err := domain.NewProfileWithoutWorkspace(scmUser.Email, scmUser.Name); err == nil {
+			return profile, nil
+		}
+
 		return nil, err
 	}
 

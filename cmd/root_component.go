@@ -15,25 +15,31 @@ const (
 )
 
 type RootComponent struct {
-	ProfileRepository   domain.ProfileRepository
-	ScmUserRepository   domain.ScmUserRepository
-	ScmCommitRepository domain.ScmCommitRepository
+	ProfileRepository       domain.ProfileRepository
+	ScmUserRepository       domain.ScmUserRepository
+	ScmGlobalUserRepository domain.ScmUserRepository
+	ScmCommitRepository     domain.ScmCommitRepository
 
-	CreateProfileService  *application.CreateProfileService
-	UpdateProfileService  *application.UpdateProfileService
-	GetProfileService     *application.GetProfileService
-	ListProfileService    *application.ListProfileService
-	DeleteProfileService  *application.DeleteProfileService
-	UseProfileSercice     *application.UseProfileService
-	CurrentProfileService *application.CurrentProfileService
-	amendProfileService   *application.AmendProfileService
+	CreateProfileService        *application.CreateProfileService
+	UpdateProfileService        *application.UpdateProfileService
+	GetProfileService           *application.GetProfileService
+	ListProfileService          *application.ListProfileService
+	DeleteProfileService        *application.DeleteProfileService
+	SetProfileService           *application.SetProfileService
+	SetProfileGlobalService     *application.SetProfileService
+	UnsetProfileService         *application.UnsetProfileService
+	UnsetProfileGlobalService   *application.UnsetProfileService
+	CurrentProfileService       *application.CurrentProfileService
+	CurrentProfileGlobalService *application.CurrentProfileService
+	AmendProfileService         *application.AmendProfileService
 
 	VersionCommand        *command.VersionCommand
-	UpsertProfileCommand  *command.SetProfileCommand
+	UpsertProfileCommand  *command.CreateProfileCommand
 	GetProfileCommand     *command.GetProfileCommand
 	ListProfileCommand    *command.ListProfileCommand
 	DeleteProfileCommand  *command.DeleteProfileCommand
-	UseProfileCommand     *command.UseProfileCommand
+	SetProfileCommand     *command.SetProfileCommand
+	UnsetProfileCommand   *command.UnsetProfileCommand
 	CurrentProfileCommand *command.CurrentProfileCommand
 	AmendProfileCommand   *command.AmendProfileCommitCommand
 }
@@ -43,22 +49,33 @@ type RootComponentOption struct {
 	profile string
 	// local flag is used to set the local profile (default is .gitprofile in the current directory)
 	local bool
-	// pwd flag is used to set the current working directory (default is the current directory)
-	pwd string
+	// workingDir flag is used to set the current working directory (default is the current directory)
+	workingDir string
+	// userHomeDir is used to set the user home directory (default is the user home directory)
+	userHomeDir string
 }
 
 func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	if option != nil && option.userHomeDir != "" {
+		userHomeDir = option.userHomeDir
+	}
+
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	if option != nil && option.pwd != "" {
-		workingDir = option.pwd
+	if option != nil && option.workingDir != "" {
+		workingDir = option.workingDir
 	}
 
 	// Set default profile file path to $HOME/.gitprofile if not provided by user
-	profiles, err := resolveProfileLocations(workingDir, option)
+	profiles, err := resolveProfileLocations(workingDir, userHomeDir, option)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +86,12 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 		return nil, err
 	}
 
-	scmUserRepository, err := infrastructure.NewGitUserRepository(workingDir)
+	scmUserRepository, err := infrastructure.NewGitUserRepository(path.Join(workingDir, infrastructure.GIT_LOCAL_CONFIG_FILE))
+	if err != nil {
+		return nil, err
+	}
+
+	scmGlobalUserRepository, err := infrastructure.NewGitUserRepository(path.Join(userHomeDir, infrastructure.GIT_GLOBAL_CONFIG_FILE))
 	if err != nil {
 		return nil, err
 	}
@@ -85,51 +107,57 @@ func NewRootComponent(option *RootComponentOption) (*RootComponent, error) {
 	getProfileService := application.NewGetProfileService(profileRepository)
 	listProfilesService := application.NewListProfileService(profileRepository)
 	deleteProfileService := application.NewDeleteProfileService(profileRepository)
-	useProfileService := application.NewUseProfileService(profileRepository, scmUserRepository)
+	setProfileService := application.NewSetProfileService(profileRepository, scmUserRepository)
+	setProfileGlobalService := application.NewSetProfileService(profileRepository, scmGlobalUserRepository)
+	usetProfileService := application.NewUnsetProfileService(scmUserRepository)
+	unsetProfileGlobalService := application.NewUnsetProfileService(scmGlobalUserRepository)
 	currentProfileService := application.NewCurrentProfileService(profileRepository, scmUserRepository)
+	currentProfileGlobalService := application.NewCurrentProfileService(profileRepository, scmGlobalUserRepository)
 	amendProfileService := application.NewAmendProfileService(profileRepository, scmCommitRepository)
 
 	// Command
 	versionCommand := command.NewVersionCommand(version, gitCommit, buildDate, profiles[0])
-	createProfileCommand := command.NewSetProfileCommand(createProfileService, updateProfileService, getProfileService)
+	createProfileCommand := command.NewCreateProfileCommand(createProfileService, updateProfileService, getProfileService)
 	getProfileCommand := command.NewGetProfileCommand(getProfileService)
 	listProfileCommand := command.NewListProfileCommand(listProfilesService, currentProfileService)
 	deleteProfileCommand := command.NewDeleteProfileCommand(getProfileService, deleteProfileService)
-	useProfileCommand := command.NewUseProfileCommand(useProfileService, getProfileService, listProfilesService)
-	currentProfileCommand := command.NewCurrentProfileCommand(currentProfileService)
+	SetProfileCommand := command.NewSetProfileCommand(setProfileService, setProfileGlobalService, getProfileService, listProfilesService)
+	unsetProfileCommand := command.NewUnsetProfileCommand(usetProfileService, unsetProfileGlobalService, currentProfileService, currentProfileGlobalService)
+	currentProfileCommand := command.NewCurrentProfileCommand(currentProfileService, currentProfileGlobalService)
 	amendProfileCommitCommand := command.NewAmendProfileCommitCommnad(currentProfileService, amendProfileService)
 
 	return &RootComponent{
 		// Repositories
-		ProfileRepository:   profileRepository,
-		ScmUserRepository:   scmUserRepository,
-		ScmCommitRepository: scmCommitRepository,
+		ProfileRepository:       profileRepository,
+		ScmUserRepository:       scmUserRepository,
+		ScmGlobalUserRepository: scmGlobalUserRepository,
+		ScmCommitRepository:     scmCommitRepository,
 		// Services
-		CreateProfileService:  createProfileService,
-		GetProfileService:     getProfileService,
-		ListProfileService:    listProfilesService,
-		DeleteProfileService:  deleteProfileService,
-		UseProfileSercice:     useProfileService,
-		CurrentProfileService: currentProfileService,
-		amendProfileService:   amendProfileService,
+		CreateProfileService:        createProfileService,
+		GetProfileService:           getProfileService,
+		ListProfileService:          listProfilesService,
+		DeleteProfileService:        deleteProfileService,
+		SetProfileService:           setProfileService,
+		SetProfileGlobalService:     setProfileGlobalService,
+		UnsetProfileService:         usetProfileService,
+		UnsetProfileGlobalService:   unsetProfileGlobalService,
+		CurrentProfileService:       currentProfileService,
+		CurrentProfileGlobalService: currentProfileGlobalService,
+		AmendProfileService:         amendProfileService,
 		// Command
 		VersionCommand:        versionCommand,
 		UpsertProfileCommand:  createProfileCommand,
 		GetProfileCommand:     getProfileCommand,
 		ListProfileCommand:    listProfileCommand,
 		DeleteProfileCommand:  deleteProfileCommand,
-		UseProfileCommand:     useProfileCommand,
+		SetProfileCommand:     SetProfileCommand,
+		UnsetProfileCommand:   unsetProfileCommand,
 		CurrentProfileCommand: currentProfileCommand,
 		AmendProfileCommand:   amendProfileCommitCommand,
 	}, nil
 }
 
-func resolveProfileLocations(workingDir string, option *RootComponentOption) ([]string, error) {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-
+func resolveProfileLocations(workingDir string, userHomeDir string, option *RootComponentOption) ([]string, error) {
 	defaultProfile := path.Join(userHomeDir, PROFILE_NAME)
 	localProfile := path.Join(workingDir, PROFILE_NAME)
 

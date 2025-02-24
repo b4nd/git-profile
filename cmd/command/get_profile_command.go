@@ -28,10 +28,10 @@ func (c *GetProfileCommand) Register(rootCmd *cobra.Command) {
 		Use:   "get [-w workspace]",
 		Short: "Retrieves details of a specific profile.",
 		Long:  `get profile with the given workspace, email and name.`,
-		Example: `git-profile get
-git-profile get work
-git-profile get --workspace work 
-git-profile get -w work`,
+		Example: `  git profile get
+  git profile get work
+  git profile get --workspace work 
+  git profile get -w work`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if workspace == "" && len(args) > 0 {
@@ -65,7 +65,7 @@ func (c *GetProfileCommand) Execute(cmd *cobra.Command, workspace string) error 
 	if err != nil {
 		cmd.Printf(errorMessages[err], params.Workspace)
 		cmd.Printf("\nSuggest to create a new profile with the following command:\n")
-		cmd.Printf("  git-profile set %s\n", params.Workspace)
+		cmd.Printf("  git profile set %s\n", params.Workspace)
 		return nil
 	}
 

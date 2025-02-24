@@ -30,9 +30,9 @@ func (c *ListProfileCommand) Register(rootCmd *cobra.Command) {
 		Aliases: []string{
 			"ls",
 		},
-		Example: `git-profile list
-git-profile list --verbose
-git-profile list -v`,
+		Example: `  git profile list
+  git profile list --verbose
+  git profile list -v`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return c.Execute(cmd, verbose)

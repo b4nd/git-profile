@@ -8,23 +8,23 @@ import (
 
 var ErrProfileNotExists = errors.New("profile not exists")
 
-type UseProfileService struct {
+type SetProfileService struct {
 	profileRepository domain.ProfileRepository
 	scmUserRepository domain.ScmUserRepository
 }
 
-type UseProfileServiceParams struct {
+type SetProfileServiceParams struct {
 	Workspace string
 }
 
-func NewUseProfileService(
+func NewSetProfileService(
 	profileRepository domain.ProfileRepository,
 	scmUserRepository domain.ScmUserRepository,
-) *UseProfileService {
-	return &UseProfileService{profileRepository, scmUserRepository}
+) *SetProfileService {
+	return &SetProfileService{profileRepository, scmUserRepository}
 }
 
-func (up *UseProfileService) Execute(params UseProfileServiceParams) (*domain.Profile, error) {
+func (up *SetProfileService) Execute(params SetProfileServiceParams) (*domain.Profile, error) {
 	workspace, err := domain.NewProfileWorkspace(params.Workspace)
 	if err != nil {
 		return nil, err

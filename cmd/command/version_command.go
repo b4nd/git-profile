@@ -32,7 +32,7 @@ func (c *VersionCommand) Register(rootCmd *cobra.Command) {
 	cmd := &cobra.Command{
 		Use:     "version",
 		Short:   "Displays the current version of the application.",
-		Example: `git-profile version`,
+		Example: `  git-profile version`,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return c.Execute(cmd)

@@ -15,7 +15,7 @@ func (m *MockCommitRepository) Get(hash *domain.ScmCommitHash) (*domain.ScmCommi
 	return args.Get(0).(*domain.ScmCommit), args.Error(1)
 }
 
-func (m *MockCommitRepository) AmendAuthor(author *domain.ScmCommitAuthor) error {
+func (m *MockCommitRepository) Save(author *domain.ScmCommitAuthor) error {
 	args := m.Called(author)
 	return args.Error(0)
 }

@@ -51,7 +51,7 @@ func (cp *AmendProfileService) Execute(params AmendProfileServiceParams) (*domai
 		return nil, err
 	}
 
-	err = cp.scmCommitRepository.AmendAuthor(&newScmAuthor)
+	err = cp.scmCommitRepository.Save(&newScmAuthor)
 	if err != nil {
 		return nil, err
 	}

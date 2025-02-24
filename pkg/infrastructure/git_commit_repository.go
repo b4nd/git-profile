@@ -56,7 +56,7 @@ func (r *GitCommitRepository) Get(hash *domain.ScmCommitHash) (*domain.ScmCommit
 	return domain.NewScmCommit(scmHash, scmAuthor, scmDate.UTC(), scmMessage), nil
 }
 
-func (r *GitCommitRepository) AmendAuthor(author *domain.ScmCommitAuthor) error {
+func (r *GitCommitRepository) Save(author *domain.ScmCommitAuthor) error {
 	cmd := exec.Command("git", "commit", "--amend", "--author=\""+author.String()+"\"", "--no-edit", "--allow-empty") // #nosec G204
 	cmd.Dir = r.path
 

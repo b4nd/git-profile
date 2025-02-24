@@ -40,10 +40,10 @@ func (c *DeleteProfileCommand) Register(rootCmd *cobra.Command) {
 		Long: `Delete a profile with the given workspace.
 If no arguments are provided, the command will prompt for the missing values.
 `,
-		Example: `git-profile delete
-git-profile delete work
-git-profile delete --workspace work
-git-profile delete -w work`,
+		Example: `  git profile delete
+  git profile delete work
+  git profile delete --workspace work
+  git profile delete -w work`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if workspace == "" && len(args) > 0 {
@@ -83,7 +83,7 @@ func (c *DeleteProfileCommand) Execute(cmd *cobra.Command, workspace string) err
 
 	cmd.Printf("Profile \"%s\" deleted\n", params.Workspace)
 	cmd.Printf("\nSuggest to list all profiles with the following command:\n")
-	cmd.Printf("  git-profile list\n")
+	cmd.Printf("  git profile list\n")
 
 	return nil
 }

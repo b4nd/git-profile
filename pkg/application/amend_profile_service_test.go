@@ -71,7 +71,7 @@ func TestAmendProfileServiceExecute(t *testing.T) {
 
 		mockProfileRepository.On("Get", workspace).Return(profile, nil)
 		mockScmCommitRepository.On("Get", &headHash).Return(commit, nil).Once()
-		mockScmCommitRepository.On("AmendAuthor", &newAuthor).Return(nil)
+		mockScmCommitRepository.On("Save", &newAuthor).Return(nil)
 		mockScmCommitRepository.On("Get", &headHash).Return(newCommit, nil).Once()
 
 		amendProfileService := application.NewAmendProfileService(mockProfileRepository, mockScmCommitRepository)
@@ -191,7 +191,7 @@ func TestAmendProfileServiceExecute(t *testing.T) {
 
 		mockProfileRepository.On("Get", workspace).Return(profile, nil)
 		mockScmCommitRepository.On("Get", &headHash).Return(commit, nil).Once()
-		mockScmCommitRepository.On("AmendAuthor", &newAuthor).Return(assert.AnError)
+		mockScmCommitRepository.On("Save", &newAuthor).Return(assert.AnError)
 
 		amendProfileService := application.NewAmendProfileService(mockProfileRepository, mockScmCommitRepository)
 		ammedCommit, err := amendProfileService.Execute(params)
@@ -241,7 +241,7 @@ func TestAmendProfileServiceExecute(t *testing.T) {
 
 		mockProfileRepository.On("Get", workspace).Return(profile, nil)
 		mockScmCommitRepository.On("Get", &headHash).Return(commit, nil).Once()
-		mockScmCommitRepository.On("AmendAuthor", &newAuthor).Return(nil)
+		mockScmCommitRepository.On("Save", &newAuthor).Return(nil)
 		mockScmCommitRepository.On("Get", &headHash).Return(&domain.ScmCommit{}, assert.AnError).Once()
 
 		amendProfileService := application.NewAmendProfileService(mockProfileRepository, mockScmCommitRepository)

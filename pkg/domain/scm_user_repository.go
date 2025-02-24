@@ -8,4 +8,6 @@ type ScmUserRepository interface {
 	Get() (*ScmUser, error)
 
 	Save(user *ScmUser) error
+
+	Delete() error
 }

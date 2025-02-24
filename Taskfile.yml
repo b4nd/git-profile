@@ -38,6 +38,12 @@ tasks:
       - golangci-lint run ./...
       - gosec ./...
 
+  fmt:
+    desc: Run go fmt
+    aliases: [f]
+    cmds:
+      - go fmt ./...
+      
   run:
     desc: Run the binary file
     aliases: [r]

@@ -1,5 +1,6 @@
 # Git Profile
 
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Go](https://github.com/b4nd/git-profile/actions/workflows/build.yml/badge.svg)](https://github.com/b4nd/git-profile/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/b4nd/git-profile)](https://goreportcard.com/report/github.com/b4nd/git-profile)
@@ -28,40 +29,46 @@ Git Profile is a command-line application developed in Go, designed to efficient
 
 ### Example Use Case
 
-Imagine a developer working on both open-source and corporate projects. They need to switch between different Git profiles seamlessly to ensure commits are associated with the correct email and username. Instead of manually changing Git configurations every time, they can use `git-profile` to quickly switch between predefined profiles, improving workflow efficiency.
-Once you’ve configured a project profile, git-profile will remember it the next time you work on that project, saving you the hassle of reconfiguration.
+Imagine a developer working on both open-source and corporate projects. They need to switch between different Git profiles seamlessly to ensure commits are associated with the correct email and username. Instead of manually changing Git configurations every time, they can use `git profile` to quickly switch between predefined profiles, improving workflow efficiency.
+Once you’ve configured a project profile,`git profile` will remember it the next time you work on that project, saving you the hassle of reconfiguration.
 
 #### Profile Storage
 
-By default, git-profile stores profiles in `$HOME/.gitprofile`. However, you can also store them locally by using the `--local` flag, which places a `.gitprofile` file in the current folder. This feature is especially useful for keeping project-specific settings right inside the repository.
+By default,`git profile` stores profiles in `$HOME/.gitprofile`. However, you can also store them locally by using the `--local` flag, which places a `.gitprofile` file in the current folder. This feature is especially useful for keeping project-specific settings right inside the repository.
 
 #### Where the selected profile is stored
 
-git-profile uses the .git/config file in each repository to store the selected profile. This way, there’s no need to reconfigure the profile every time you work on that repository, and it also ensures that the local name and user remain consistent for each project.
+git profile uses the .git/config file in each repository to store the selected profile. This way, there’s no need to reconfigure the profile every time you work on that repository, and it also ensures that the local name and user remain consistent for each project.
 
-![git-profile](https://raw.githubusercontent.com/b4nd/git-profile/main/doc/git-profile.gif)
+![git profile](https://raw.githubusercontent.com/b4nd/git-profile/main/doc/git-profile.gif)
 
 ## Commands Documentation
 
-| Command                     | Description                                                |
-| --------------------------- | ---------------------------------------------------------- |
-| `git-profile current`       | Displays the currently active profile.                     |
-| `git-profile [delete\|del]` | Deletes a specified profile from the system.               |
-| `git-profile get`           | Retrieves details of a specific profile.                   |
-| `git-profile [list\|ls]`    | Lists all available profiles.                              |
-| `git-profile [set\|add]`    | Sets or updates a profile configuration.                   |
-| `git-profile use`           | Switches to a specific profile for operations.             |
-| `git-profile amend`         | Updates email and name of the current profile last commit. |
-| `git-profile version`       | Displays the current version of the application.           |
-| `git-profile help`          | Displays help information for the application.             |
-| `git-profile completion`    | Generates shell completion scripts.                        |
+| Command                   | Alias     | Flags                   | Description                                                |
+| ------------------------- | --------- | ----------------------- | ---------------------------------------------------------- |
+| `git profile current`     |           | `--global`,`--verbose`  | Displays the currently active profile.                     |
+| `git profile delete`      | `del`     | `--local`               | Deletes a specified profile from the system.               |
+| `git profile get`         |           | `--local`,`--verbose`   | Retrieves details of a specific profile.                   |
+| `git profile list`        | `ls`      | `--local`,`--verbose`   | Lists all available profiles.                              |
+| `git profile add`         | `create`  | `--local`               | Sets or updates a profile configuration.                   |
+| `git profile set`         | `use`     | `--global`              | Switches to a specific profile for operations.             |
+| `git profile unset`       | `unuse`   | `--global`              | Unsets the currently active profile.                       |
+| `git profile amend`       |           |                         | Updates email and name of the current profile last commit. |
+| `git profile version`     |           |                         | Displays the current version of the application.           |
+| `git profile help`        |           |                         | Displays help information for the application.             |
+
+### Flags
+
+- `--local` flag: Specifies that the operation should be performed on the local `.gitprofile` file.
+- `--global` flag: Specifies that the operation should be performed on the global `.gitconfig` file.
+- `--verbose` flag: Displays additional information about the current profile.
 
 ## Installation
 
 ### Linux
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.4/git-profile-v0.1.4-linux-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.5/git-profile-v0.1.5-linux-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -69,7 +76,7 @@ mv git-profile /usr/local/bin/
 ### macOS
 
 ```bash
-curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.4/git-profile-v0.1.4-darwin-amd64 -o git-profile
+curl -sL https://github.com/b4nd/git-profile/releases/download/v0.1.5/git-profile-v0.1.5-darwin-amd64 -o git-profile
 chmod +x git-profile 
 mv git-profile /usr/local/bin/
 ```
@@ -78,7 +85,7 @@ mv git-profile /usr/local/bin/
 
 1. Download the latest Windows executable from the [releases page](https://github.com/b4nd/git-profile/releases).
 2. Extract the archive.
-3. Move the `git-profile-v0.1.4-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
+3. Move the `git-profile-v0.1.5-darwin-amd64.exe` file to a directory in your system `PATH` and rename it to `git-profile.exe`.
 4. Optionally, add the directory to the system `PATH` environment variable for easier access.
 
 ```powershell
@@ -98,10 +105,10 @@ git profile [command] [flags]
 - **Create a new profile for a personal project:**
 
   ```bash
-  git profile set --workspace personal --name "Your Name" --email "name@example.com"
+  git profile add personal --name "Your Name" --email "name@example.com"
   ```
 
-  This command sets up a new profile named `personal` with the given credentials.
+  This command add up a new profile named `personal` with the given credentials.
 
 - **List all existing profiles:**
 
@@ -111,10 +118,10 @@ git profile [command] [flags]
 
   Displays all available profiles currently stored.
 
-- **Use a specific profile:**
+- **Set a specific profile:**
 
   ```bash
-  git profile use personal
+  git profile set personal
   ```
 
   Switches to the `personal` profile, applying its Git credentials.
@@ -127,6 +134,15 @@ git profile [command] [flags]
 
   Shows which profile is currently in use.
 
+  
+- **Check the global current profile:**
+
+  ```bash
+  git profile current --global
+  ```
+
+  equivalent to `git config --global user.name` and `git config --global user.email`
+
 - **Amend the last commit with the active profile's details:**
 
   ```bash
@@ -135,13 +151,30 @@ git profile [command] [flags]
 
   Updates the latest commit with the email and name of the currently active profile.
 
+- **Unset the currently active profile:**
+
+  ```bash
+  git profile unset
+  ```
+
+  Removes the currently active profile, reverting to the default Git configuration.
+  
+- **Unset global current profile:**
+
+  ```bash
+  git profile unset --global
+  ```
+
+  equivalent to `git config --global --unset user.name` and `git config --global --unset user.email`
+  
 - **Remove a profile:**
 
   ```bash
   git profile delete personal
   ```
 
-  Deletes the `personal` profile from the system.
+  Deletes the `personal` profile.
+
 
 ## Environment variables
 
@@ -220,7 +253,7 @@ Below are examples of how to use each command, along with explanations of their 
 - **Set a new profile:**
 
   ```bash
-  task run -- set \
+  task run -- add \
      --workspace company \
      --name "Your Name" \
      --email "name@example.com"
@@ -239,7 +272,7 @@ Below are examples of how to use each command, along with explanations of their 
 - **Switch to a specific profile:**
 
   ```bash
-  task run -- use company
+  task run -- set company
   ```
 
   Activates the Git profile associated with `company`, ensuring that subsequent Git commits use the corresponding credentials.

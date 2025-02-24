@@ -6,6 +6,8 @@ type Profile struct {
 	name      ProfileName
 }
 
+const NotConfiguredWorkspace = "(not configured)"
+
 func NewProfile(workspace string, email string, name string) (*Profile, error) {
 	w, err := NewProfileWorkspace(workspace)
 	if err != nil {
@@ -26,6 +28,26 @@ func NewProfile(workspace string, email string, name string) (*Profile, error) {
 		workspace: w,
 		email:     e,
 		name:      n,
+	}, nil
+}
+
+func NewProfileWithoutWorkspace(email string, name string) (*Profile, error) {
+	e, err := NewProfileEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	n, err := NewProfileName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Profile{
+		workspace: ProfileWorkspace{
+			value: NotConfiguredWorkspace,
+		},
+		email: e,
+		name:  n,
 	}, nil
 }
 
